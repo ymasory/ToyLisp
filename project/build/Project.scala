@@ -23,11 +23,11 @@ class Project(info: ProjectInfo) extends DefaultProject(info) with ProguardProje
   )
 
   //proguard: remove jar signatures from jline or resulting jar will be invalid
-  // override def makeInJarFilter (jarPath: String) = {
-  //   jarPath match {
-  //     case _ => super.makeInJarFilter(file) + ",!META-INF/.RSA,!META-INF/*.SF"
-  //   }
-  // }
+  override def makeInJarFilter (jarPath: String) = {
+    jarPath match {
+      case _ => super.makeInJarFilter(jarPath) + ",!META-INF/.RSA,!META-INF/*.SF"
+    }
+  }
 
   //proguard: include scala-library.jar
   override def proguardInJars = Path.fromFile(scalaLibraryJar) +++ super.proguardInJars
