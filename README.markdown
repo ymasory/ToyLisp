@@ -2,22 +2,22 @@ Toy Lisp interpreter in Scala
 =============================
 
 # syntax #
-blah    = evaluated symbol
-(blah)  = function call, n-ary
-'(blah) = unevaluated list, the list is just data
-"blah"  = string (list of scala.Char)
-3.14    = number (scala.Double)
+- blah    = evaluated symbol
+- (blah)  = function call, n-ary
+- '(blah) = unevaluated list, the list is just data
+- "blah"  = string (list of scala.Char)
+- 3.14    = number (scala.Double)
 
 # built-in #
-defn (named functions)
-set (assignment)
-lambda
-cons, head, tail
-char-to-num, num-to-char
-<=, +, floor, opp
-if
-eq
-print
+- defn (named functions)
+- set (assignment)
+- lambda
+- cons, head, tail
+- char-to-num, num-to-char
+- <=, +, floor, opp
+- if
+- eq
+- print
 
 # implementation #
 - arbitrary nesting supported
