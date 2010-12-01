@@ -16,14 +16,19 @@ class Project(info: ProjectInfo) extends DefaultProject(info) with ProguardProje
   //program entry point
   override def mainClass: Option[String] = Some("com.yuvimasory.toylisp.Main")
 
-  //proguard
+  //proguard: general options
   override def proguardOptions = List(
     "-keepclasseswithmembers public class * { public static void main(java.lang.String[]); }",
-    "-dontoptimize",
-    "-dontobfuscate",
-    proguardKeepLimitedSerializability,
-    proguardKeepAllScala,
-    "-keep interface scala.ScalaObject"
+    proguardKeepAllScala
   )
+
+  //proguard: remove jar signatures from jline or resulting jar will be invalid
+  // override def makeInJarFilter (jarPath: String) = {
+  //   jarPath match {
+  //     case _ => super.makeInJarFilter(file) + ",!META-INF/.RSA,!META-INF/*.SF"
+  //   }
+  // }
+
+  //proguard: include scala-library.jar
   override def proguardInJars = Path.fromFile(scalaLibraryJar) +++ super.proguardInJars
 }
