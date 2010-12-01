@@ -1,5 +1,4 @@
 syntax:
-:blah   = atom
 blah    = evaluated symbol
 (blah)  = function call, n-ary
 '(blah) = unevaluated list, the list is just data
@@ -10,17 +9,18 @@ built-in:
 defn (named functions)
 set (assignment)
 lambda
-cons, head
+cons, head, tail
 char-to-num, num-to-char
 <=, +, floor
-cond
+if
 eq
 print
 
 notes:
 - arbitrary nesting supported
-- no recursion
-- no quoting mechanism, do we really need it given that we have unevaluated list syntax?
-- everything is in one big dynamic scope and one namespace
+- recursion supported
+- no quoting mechanism beyond creating unevaluated lists using the ' syntax
+- everything is in one big dynamic scope?
+- one namespace
 - all evaluation is eager
-- what else do we need?
+
