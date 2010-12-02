@@ -25,17 +25,17 @@ object Reader {
     lazy val quote : Parser[String] = "'"
     lazy val ws    : Parser[String] = """\s+""".r
 
-    lazy val toyToken : Parser[ToyToken]  = """[a-zA-Z_@~%!=#\-\+\*\?\^\&]+""".r ^^ {ToyToken(_)}
+    lazy val toySymbol : Parser[ToySymbol]  = """[a-zA-Z_@~%!=#\-\+\*\?\^\&]+""".r ^^ {ToySymbol(_)}
     lazy val toyString: Parser[ToyString] = stringLiteral ^^ {ToyString(_)}
     lazy val toyNumber: Parser[ToyNumber] = floatingPointNumber ^^ {
       x => ToyNumber(x.toDouble)
     }
 
-    lazy val toyExpression: Parser[ToyExpression] = toyToken | toyNumber | toyString
+    lazy val toyExpression: Parser[ToyExpression] = toySymbol | toyNumber | toyString
   }
 }
 
 sealed abstract class ToyExpression
 case class ToyString(str: String) extends ToyExpression
-case class ToyToken(str: String) extends ToyExpression
+case class ToySymbol(str: String) extends ToyExpression
 case class ToyNumber(dub: Double) extends ToyExpression
