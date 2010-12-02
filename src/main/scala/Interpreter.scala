@@ -7,6 +7,17 @@ import scala.collection.{mutable => m}
   */
 class Interpreter {
 
+  def truthy = ToyNumber(1.0)
+  def falsy = ToyNumber(0.0)
+
+  def isFalsy(form : ToyForm) : Boolean = {
+    form match {
+      case ToyList(List()) => true
+      case ToyNumber(0.0) => true
+      case _ => false
+    }
+  }
+
   val environment = m.Map.empty[ToySymbol, ToyForm]
 
   def interpret(form: ToyForm): ToyForm = {
@@ -24,7 +35,86 @@ class Interpreter {
 
   def functionApplication(lst: ToyList): ToyForm = {
     lst match {
-      case ToyList(h :: t) => lst
+      case ToyList(h :: t) =>
+        h match {
+         case ToySymbol("list?") =>
+                (t map interpret) match {
+                  case List(ToyQList(_)) => truthy
+                  case _ => falsy
+                }
+         case ToySymbol("char?") =>
+                (t map interpret) match {
+                  case List(ToyChar(_)) => truthy
+                  case _ => falsy
+                }
+         case ToySymbol("num?") =>
+                (t map interpret) match {
+                  case List(ToyNumber(_)) => truthy
+                  case _ => falsy
+                }
+         case ToySymbol("eq?") =>
+                (t map interpret) match {
+                  case List(ToyNumber(a), ToyNumber(b)) => if (a == b) truthy else falsy
+                  case List(ToyChar(a), ToyChar(b)) => if (a == b) truthy else falsy
+                  case List(ToyQList(a), ToyQList(b)) => if (a == b) truthy else falsy
+                  case _ => falsy
+                }
+         case ToySymbol("char>num") =>
+                (t map interpret) match {
+                  case List(ToyChar(c)) => ToyNumber(c.toInt)
+                  case _ => throw SyntaxError("char>num needs one char")
+                }
+          case ToySymbol("num>char") =>
+                (t map interpret) match {
+                  case List(ToyNumber(n)) => ToyChar(n.toChar)
+                  case _ => throw SyntaxError("num>char needs one number")
+                }
+          case ToySymbol("+") =>
+                (t map interpret) match {
+                  case List(ToyNumber(a), ToyNumber(b)) => ToyNumber(a + b)
+                  case _ => throw SyntaxError("plus needs two numbers")
+                }
+           case ToySymbol("opp") =>
+                (t map interpret) match {
+                  case List(ToyNumber(a)) => ToyNumber(-a)
+                  case _ => throw SyntaxError("opp needs one number")
+                }
+           case ToySymbol("<=") =>
+                (t map interpret) match {
+                  case List(ToyNumber(a), ToyNumber(b)) =>
+                    ToyNumber(if (a <= b) 1.0 else 0.0)
+                  case _ => throw SyntaxError("plus needs two numbers")
+                }
+           case ToySymbol("floor") =>
+                (t map interpret) match {
+                  case List(ToyNumber(a)) =>
+                    ToyNumber(java.lang.Math.floor(a))
+                  case _ => throw SyntaxError("floor")
+                }
+           case ToySymbol("cons") =>
+                (t map interpret) match {
+                  case List(a, ToyQList(q)) => ToyQList(interpret(a) :: q)
+                  case _ => throw SyntaxError("cons needs a toyform and a quoted list")
+                }
+           case ToySymbol("head") =>
+                (t map interpret) match {
+                  case List(ToyQList(h :: t)) => h
+                  case _ => throw SyntaxError("head needs a non-empty quoted list")
+                }
+           case ToySymbol("tail") =>
+                (t map interpret) match {
+                  case List(ToyQList(h :: t)) => ToyQList(t)
+                  case _ => throw SyntaxError("tail needs a non-empty quoted list")
+                }
+           case ToySymbol("if") =>
+                t match {
+                  case List(cond, ift, iff) => {
+                    interpret(  if (isFalsy(interpret(cond))) ift else iff  )
+                  }
+                  case _ => throw SyntaxError("if")
+                }
+           case _ => lst
+        }
       case _ => lst
     }
   }
