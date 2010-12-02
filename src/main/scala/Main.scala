@@ -26,7 +26,7 @@ object Main {
     println("\nWelcome to Toy Lisp v" + Version + "! Press Ctrl+D to exit.\n")
     while(true) {
       in.readLine(">> ") match {
-        case input: String => println(input)
+        case input: String => println(Reader.read(input))
         case _ => {
           println("okbye!")
           return
