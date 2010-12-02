@@ -7,7 +7,7 @@ object Reader {
 
   def read(programText: String) = {
     import Parser._
-    parseAll(program, programText) match {
+    parseAll(toyString, programText) match {
       case Success(ast, _) => Some(ast)
       case _ => None
     }
@@ -23,10 +23,11 @@ object Reader {
     lazy val lParen: Parser[String] = "("
     lazy val rParen: Parser[String] = ")"
     lazy val quote : Parser[String] = "'"
+    lazy val dQuote: Parser[String] = "\""
     lazy val ws    : Parser[String] = """\s+""".r
 
     lazy val toyToken : Parser[ToyToken]  = """[a-zA-Z_@~%!=#\-\+\*\?\^\&]+""".r ^^ {ToyToken(_)}
-    lazy val toyString: Parser[ToyString] = "\"[^\"]*?\"".r ^^ {ToyString(_)}
+    lazy val toyString: Parser[ToyString] = dQuote ~> "[^\"]*".r <~ dQuote ^^ {s => ToyString(s)}
     lazy val toyNumber: Parser[ToyNumber] = floatingPointNumber ^^ {
       x => ToyNumber(x.toDouble)
     }
