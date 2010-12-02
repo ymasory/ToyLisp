@@ -2,6 +2,8 @@ package com.yuvimasory.toylisp
 
 import java.io.OutputStreamWriter
 
+import scala.io.Source
+
 import jline.ConsoleReader
 
 object Main {
@@ -9,6 +11,16 @@ object Main {
   val in = new ConsoleReader(System.in, new OutputStreamWriter(System.out))
   
   def main(args: Array[String]) {
+    if(args.length > 0) runFile(args(0))
+    else runInteractive()
+  }
+
+  def runFile(path: String) {
+      val programText = Source.fromFile(path).mkString
+      println(programText)
+  }
+
+  def runInteractive() {
     println("Welcome to Toy Lisp! Press Ctrl+D to exit.\n")
     while(true) {
       in.readLine(">> ") match {
