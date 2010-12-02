@@ -11,10 +11,9 @@ class Interpreter {
 
   def interpret(form: ToyForm): ToyForm = {
     form match {
-      case ToyChar(_) | ToyNumber(_) => form
+      case ToyChar(_) | ToyNumber(_) | ToyQList(_) => form
       case symb: ToySymbol => lookupSymbol(symb)
       case lst: ToyList => functionApplication(lst)
-      case lst: ToyQList => makeList(lst)
     }
   }
 
@@ -29,9 +28,8 @@ class Interpreter {
       case _ => lst
     }
   }
-
-  def makeList(lst: ToyQList): ToyForm = lst
 }
 
 case class UnboundSymbolError(msg: String) extends Exception(msg)
 case class SyntaxError(msg: String) extends Exception(msg)
+
