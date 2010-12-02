@@ -21,7 +21,7 @@ Language
 - set (assignment)
 - lambda
 - cons, head, tail
-- char-to-num, num-to-char
+- cton, ntoc
 - <=, +, floor, opp
 - if
 - eq
