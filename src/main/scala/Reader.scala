@@ -34,8 +34,10 @@ object Reader {
 
     lazy val toyExpression: Parser[ToyExpression] = toyToken | toyNumber | toyString
 
-    lazy val toyFunctionList: Parser[ToyFunctionList] = lParen ~> (((ws*) ~> toyExpression <~ (ws*))*) <~ 
-      rParen ^^ {ToyFunctionList(_)}
+    lazy val toyFunctionList: Parser[ToyFunctionList] = lParen ~> (ws*) ~> toyToken ~ (((ws+) ~> toyExpression <~ 
+      (ws*))*) <~ rParen ^^ {
+        case token ~ exprs => ToyFunctionList(token :: exprs)
+      }
     lazy val toyExpressionList: Parser[ToyExpressionList] = quote ~> toyFunctionList ^^ {
         case ToyFunctionList(lst) => ToyExpressionList(lst)
     }
