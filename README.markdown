@@ -2,10 +2,10 @@ Toy Lisp interpreter in Scala
 =============================
 Build
 -----
-Install simple-build-tool <http://code.google.com/p/simple-build-tool/>.
+Install sbt <http://code.google.com/p/simple-build-tool/>.
     sbt update
     sbt proguard
-    java -jar target/scala_2.8.1/ToyScala-*.min.jar
+    java -jar target/scala_2.8.1/ToyLisp-*.min.jar
 
 Language
 --------
