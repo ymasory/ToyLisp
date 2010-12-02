@@ -18,23 +18,22 @@ Language
 - 'f'    = character (scala.Char)
 - 3.14   = number (scala.Double)
 
-# built-in #
-- defn (named functions)
-- set (assignment)
-- lambda
-- cons, head, tail
-- cton, ntoc
-- <=, +, floor, opp
-- if
-- eq
+# special forms #
+- defn   (named function)
+- set    (assignment)
+- lambda (anonymous function)
+- if     (conditional -- empty list and zero are falsy)
+
+# built-in function #
 - print
-- identity
+- cons, head, tail
+- num>char, char>num
+- <=, +, floor, opp
+- eq?
+- list?, char?, num?
 
 # implementation #
-- arbitrary nesting supported
-- recursion supported
 - no quoting mechanism beyond creating unevaluated lists using the ' syntax
-- everything is in one big dynamic scope
-- one namespace
-- all evaluation is eager
+- everything is in one big dynamic scope, one namespace
+
 
