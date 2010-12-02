@@ -3,7 +3,7 @@ import sbt._
 class Project(info: ProjectInfo) extends DefaultProject(info) with ProguardProject with Exec {
   
   //project name
-  override val artifactID = "ToyScala"
+  override val artifactID = "ToyLisp"
 
   //managed dependencies from externa repositories
   val jline = "jline" % "jline" % "0.9.5"
