@@ -7,7 +7,7 @@ object Reader {
 
   def read(programText: String) = {
     import Parser._
-    parseAll(toyExpression, programText) match {
+    parseAll(toyFunctionList, programText) match {
       case Success(ast, _) => Some(ast)
       case _ => None
     }
@@ -34,8 +34,8 @@ object Reader {
 
     lazy val toyExpression: Parser[ToyExpression] = toyToken | toyNumber | toyString
 
-    lazy val toyFunctionList: Parser[ToyFunctionList] = lParen ~> (ws*) ~> (toyExpression*) <~
-      (ws*) <~ rParen ^^ {ToyFunctionList(_)}
+    lazy val toyFunctionList: Parser[ToyFunctionList] = lParen ~> (((ws*) ~> toyExpression <~ (ws*))*) <~ 
+      rParen ^^ {ToyFunctionList(_)}
     lazy val toyExpressionList: Parser[ToyExpressionList] = quote ~> toyFunctionList ^^ {
         case ToyFunctionList(lst) => ToyExpressionList(lst)
     }
