@@ -28,17 +28,21 @@ object Reader {
     lazy val toySymbol: Parser[ToySymbol] = """[a-zA-Z_@~%!=#\-\+\*\?\^\&]+""".r ^^ {ToySymbol(_)}
     lazy val toyChar  : Parser[ToyChar]   = quote ~> "[^.]".r <~ quote ^^ {s => ToyChar(s charAt 0)}
     lazy val toyNumber: Parser[ToyNumber] = floatingPointNumber ^^ {
-      x => ToyNumber(x.toDouble)
+      str => ToyNumber(str.toDouble)
+    }
+    lazy val toyList  : Parser[ToyList] = lParen ~> (((ws*) ~> toyForm <~ (ws*))*) <~ rParen ^^ {
+      forms => ToyList(forms)
     }
 
     //handle this with expansion handed to s-expression parser
     lazy val toyString: Parser[Any] = stringLiteral ^^ {_ => "STRING"} 
 
-    lazy val toyForm: Parser[ToyForm] = toySymbol | toyNumber | toyChar
+    lazy val toyForm: Parser[ToyForm] = toySymbol | toyNumber | toyChar | toyList
   }
 }
 
 sealed abstract class ToyForm
-case class ToyChar(c: Char)       extends ToyForm
-case class ToySymbol(str: String) extends ToyForm
-case class ToyNumber(dub: Double) extends ToyForm
+case class ToyChar(c: Char)            extends ToyForm
+case class ToySymbol(str: String)      extends ToyForm
+case class ToyNumber(dub: Double)      extends ToyForm
+case class ToyList(lst: List[ToyForm]) extends ToyForm
