@@ -19,14 +19,23 @@ object Main {
 
   def runFile(path: String) {
       val programText = Source.fromFile(path).mkString
-      println(Reader.read(programText))
+      Reader.read(programText) match {
+        case Some(form) => println(new Interpreter().interpret(form))
+        case None => println("syntax error")
+      }
   }
 
   def runInteractive() {
+    val interpreter = new Interpreter()
     println("\nWelcome to Toy Lisp v" + Version + "! Press Ctrl+D to exit.\n")
     while(true) {
       in.readLine(">> ") match {
-        case input: String => println(Reader.read(input))
+        case input: String => {
+          Reader.read(input) match {
+            case Some(form) => println(interpreter.interpret(form))
+            case None => println("syntax error")
+          }
+        }
         case _ => {
           println("okbye!")
           return

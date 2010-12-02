@@ -59,8 +59,18 @@ object Reader {
 }
 
 sealed abstract class ToyForm
-case class ToyChar  (chr: Char)          extends ToyForm
-case class ToySymbol(str: String)        extends ToyForm
-case class ToyNumber(dub: Double)        extends ToyForm
-case class ToyList  (lst: List[ToyForm]) extends ToyForm
-case class ToyQList (lst: List[ToyForm]) extends ToyForm
+case class ToyChar  (chr: Char)          extends ToyForm {
+  override val toString = chr.toString
+}
+case class ToyNumber(dub: Double)        extends ToyForm {
+  override val toString = dub.toString
+}
+case class ToySymbol(str: String)        extends ToyForm {
+  override val toString = str
+}
+case class ToyList  (lst: List[ToyForm]) extends ToyForm {
+  override val toString = "(" + lst.mkString(" ") + ")"
+}
+case class ToyQList (lst: List[ToyForm]) extends ToyForm {
+  override val toString = "(" + lst.mkString(" ") + ")"
+}
