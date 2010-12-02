@@ -19,7 +19,7 @@ object Main {
 
   def runFile(path: String) {
       val programText = Source.fromFile(path).mkString
-      println(programText)
+      println(Reader.read(programText))
   }
 
   def runInteractive() {
