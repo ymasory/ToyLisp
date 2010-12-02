@@ -18,17 +18,18 @@ Language
 - 'f'    = character (scala.Char)
 - 3.14   = number (scala.Double)
 
-# built-in #
-- defn (named functions)
-- set (assignment)
-- lambda
-- cons, head, tail
-- num>char, char>num (convert between numbers and chars)
-- <=, +, floor, opp
-- if (empty list and zero are falsy)
-- eq?
+# special forms #
+- defn   (named function)
+- set    (assignment)
+- lambda (anonymous function)
+- if     (conditional -- empty list and zero are falsy)
+
+# built-in function #
 - print
-- identity
+- cons, head, tail
+- num>char, char>num
+- <=, +, floor, opp
+- eq?
 - list?, char?, num?
 
 # implementation #
