@@ -40,15 +40,21 @@ object Main {
   }
 
   private def giveOutput(programText: String) {
-    Reader.read(programText) match {
-      case Some(listForms) => {
-        for (form <- listForms.lst) {
-          val result = interpreter.interpret(form)
-          val resType = result.getClass.toString.split("\\s+")(1).split("\\.").last
-          println(resType + " = " + result)
+    try {
+      Reader.read(programText) match {
+        case Some(listForms) => {
+          for (form <- listForms.lst) {
+            val result = interpreter.interpret(form)
+            println(simpleClass(result) + " = " + result)
+          }
         }
+        case None => println("syntax error")
       }
-      case None => println("syntax error")
+    }
+    catch {
+      case ex => Console.err println (simpleClass(ex) + ": " + ex.getMessage)
     }
   }
+
+  private def simpleClass(arg: AnyRef): String = arg.getClass.toString.split("\\s+")(1).split("\\.").last
 }
