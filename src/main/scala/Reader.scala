@@ -7,7 +7,7 @@ object Reader {
 
   def read(programText: String) = {
     import Parser._
-    parseAll(toyFunctionList, programText) match {
+    parseAll(toyList, programText) match {
       case Success(ast, _) => Some(ast)
       case _ => None
     }
