@@ -28,3 +28,4 @@ class Interpreter {
 }
 
 case class UnboundSymbolError(msg: String) extends Exception(msg)
+case class SyntaxError(msg: String) extends Exception(msg)

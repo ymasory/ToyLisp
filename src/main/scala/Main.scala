@@ -42,13 +42,13 @@ object Main {
   private def giveOutput(programText: String) {
     try {
       Reader.read(programText) match {
-        case Some(listForms) => {
+        case Right(listForms) => {
           for (form <- listForms.lst) {
             val result = interpreter.interpret(form)
             println(simpleClass(result) + " = " + result)
           }
         }
-        case None => println("syntax error")
+        case Left(msg) => throw SyntaxError(msg)
       }
     }
     catch {

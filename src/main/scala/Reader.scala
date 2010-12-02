@@ -5,11 +5,11 @@ import scala.util.parsing.combinator._
 object Reader {
 
 
-  def read(programText: String): Option[ToyList] = {
+  def read(programText: String): Either[String, ToyList] = {
     import Parser._
     parseAll(toyProgram, programText) match {
-      case Success(form, _) => Some(form)
-      case _ => None
+      case Success(form, _) => Right(form)
+      case NoSuccess(msg, _) => Left(msg)
     }
   }
 
