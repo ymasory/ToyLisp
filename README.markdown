@@ -3,6 +3,7 @@ Toy Lisp interpreter in Scala
 Build
 -----
 Install sbt <http://code.google.com/p/simple-build-tool/>.
+    cd ToyLisp
     sbt update
     sbt proguard
     java -jar target/scala_2.8.1/ToyLisp-*.min.jar
