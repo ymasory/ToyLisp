@@ -5,7 +5,7 @@ import scala.util.parsing.combinator._
 object Reader {
 
 
-  def read(programText: String): Option[ToyUnquotedList] = {
+  def read(programText: String): Option[List[ToyList]] = {
     import Parser._
     parseAll(program, programText) match {
       case Success(ast, _) => Some(ast)
@@ -15,9 +15,7 @@ object Reader {
 
   private[toylisp] object Parser extends RegexParsers with JavaTokenParsers {
 
-    lazy val program: Parser[ToyUnquotedList] = (ws*) ~> toyUnquotedList <~ (ws*) ^^ {
-      case ToyUnquotedList(exprs) => ToyUnquotedList(exprs)
-    }
+    lazy val program: Parser[List[ToyList]] = (ws*) ~> (toyList*) <~ (ws*)
 
     //we will handle whitepsace ourselves
     override val skipWhitespace = false
@@ -35,11 +33,12 @@ object Reader {
 
     private lazy val toyExpression: Parser[ToyExpression] = toyToken | toyNumber | toyString
 
-    private lazy val toyUnquotedList: Parser[ToyUnquotedList] = lParen ~> (ws*) ~> (toyExpression*) <~ 
-      (ws*) <~ rParen ^^ {ToyUnquotedList(_)}
-    private lazy val toyQuotedList: Parser[ToyQuotedList] = quote ~> toyUnquotedList ^^ {
-        case ToyUnquotedList(lst) => ToyQuotedList(lst)
+    private lazy val toyFunctionList: Parser[ToyFunctionList] = lParen ~> (ws*) ~> (toyExpression*) <~
+      (ws*) <~ rParen ^^ {ToyFunctionList(_)}
+    private lazy val toyExpressionList: Parser[ToyExpressionList] = quote ~> toyFunctionList ^^ {
+        case ToyFunctionList(lst) => ToyExpressionList(lst)
     }
+    private lazy val toyList: Parser[ToyList] = toyFunctionList | toyExpressionList
   }
 }
 
@@ -48,6 +47,7 @@ case class ToyString(str: String) extends ToyExpression
 case class ToyToken(str: String) extends ToyExpression
 case class ToyNumber(dub: Double) extends ToyExpression
 
-sealed abstract class ToyList
-case class ToyQuotedList(lst: List[ToyExpression]) extends ToyList
-case class ToyUnquotedList(lst: List[ToyExpression]) extends ToyList
+sealed abstract class ToyList(lst: List[ToyExpression])
+case class ToyExpressionList(lst: List[ToyExpression]) extends ToyList(lst)
+case class ToyFunctionList(lst: List[ToyExpression]) extends ToyList(lst)
+
