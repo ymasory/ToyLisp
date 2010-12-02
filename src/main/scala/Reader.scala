@@ -5,18 +5,18 @@ import scala.util.parsing.combinator._
 object Reader {
 
 
-  def read(programText: String) = {
+  def read(programText: String): Option[ToyList] = {
     import Parser._
-    parseAll(program, programText) match {
-      case Success(ast, _) => Some(ast)
+    parseAll(toyProgram, programText) match {
+      case Success(form, _) => Some(form)
       case _ => None
     }
   }
 
   private[toylisp] object Parser extends RegexParsers with JavaTokenParsers {
 
-    //in the tradition of Lisp, a program is a list of lists
-    lazy val program: Parser[ToyList] = (((ws*) ~> toyList <~ (ws*))*) ^^ {ToyList(_)}
+    //in the tradition of Lisp, a program is a list of forms
+    lazy val toyProgram: Parser[ToyList] = (((ws*) ~> toyForm <~ (ws*))*) ^^ {ToyList(_)}
 
     //we will handle whitepsace ourselves
     override val skipWhitespace = false
@@ -39,7 +39,7 @@ object Reader {
     //syntactic sugar parsers
     lazy val toyString: Parser[ToyList] = stringLiteral ^^ {
       str => {
-        val chars = str.toList.map(quoteStr + _ + quoteStr)
+        val chars = str.substring(1, str.length - 1).toList.map(quoteStr + _ + quoteStr)
         val sExpr = "(" + chars.mkString(" ") + ")"
         parse(toyList, sExpr).get
       }
