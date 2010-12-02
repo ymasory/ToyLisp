@@ -19,10 +19,16 @@ class Interpreter {
   }
 
   def lookupSymbol(symb: ToySymbol) = {
-    environment getOrElse (symb, throw UnboundSymbolError(symb.toString))
+    val form = environment getOrElse (symb, throw UnboundSymbolError(symb.toString))
+    interpret(form)
   }
 
-  def functionApplication(lst: ToyList): ToyForm = lst
+  def functionApplication(lst: ToyList): ToyForm = {
+    lst match {
+      case ToyList(h :: t) => lst
+      case _ => lst
+    }
+  }
 
   def makeList(lst: ToyQList): ToyForm = lst
 }
