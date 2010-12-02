@@ -1,16 +1,22 @@
 package com.yuvimasory.toylisp
 
-import java.io.OutputStreamWriter
+import java.io.{File, OutputStreamWriter}
 
 import scala.io.Source
 
-import jline.ConsoleReader
+import jline.{ConsoleReader, History}
 
 object Main {
 
   val Version = "0.1"
 
-  val in = new ConsoleReader(System.in, new OutputStreamWriter(System.out))
+  val in = {
+    val consoleReader = new ConsoleReader(System.in, new OutputStreamWriter(System.out))
+    consoleReader setHistory (new History(new File(".toyhistory")))
+    consoleReader setUseHistory true
+    consoleReader setDefaultPrompt ">> "
+    consoleReader
+  }
   val interpreter = new Interpreter()
 
   def main(args: Array[String]) {
@@ -26,7 +32,7 @@ object Main {
   def runInteractive() {
     println("\nWelcome to Toy Lisp v" + Version + "! Press Ctrl+D to exit.\n")
     while(true) {
-      in.readLine(">> ") match {
+      in.readLine() match {
         case input: String => giveOutput(input)
         case _ => return println("okbye!")
       }
