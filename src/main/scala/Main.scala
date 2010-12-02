@@ -8,6 +8,8 @@ import jline.ConsoleReader
 
 object Main {
 
+  val Version = "0.1"
+
   val in = new ConsoleReader(System.in, new OutputStreamWriter(System.out))
   
   def main(args: Array[String]) {
@@ -21,7 +23,7 @@ object Main {
   }
 
   def runInteractive() {
-    println("Welcome to Toy Lisp! Press Ctrl+D to exit.\n")
+    println("\nWelcome to Toy Lisp v" + Version + "! Press Ctrl+D to exit.\n")
     while(true) {
       in.readLine(">> ") match {
         case input: String => println(input)
