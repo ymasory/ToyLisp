@@ -27,6 +27,7 @@ Language
 - if
 - eq
 - print
+- identity
 
 # implementation #
 - arbitrary nesting supported
