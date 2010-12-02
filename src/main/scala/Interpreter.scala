@@ -22,6 +22,7 @@ class Interpreter {
 
   def interpret(form: ToyForm): ToyForm = {
     form match {
+      case ToyLambda(_, _) => form
       case ToyChar(_) | ToyNumber(_) | ToyQList(_) => form
       case symb: ToySymbol => lookupSymbol(symb)
       case lst: ToyList => functionApplication(lst)

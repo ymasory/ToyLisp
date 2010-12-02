@@ -39,15 +39,20 @@ object Main {
     }
   }
 
+  private def interpret(form : ToyForm) {
+    val result = interpreter.interpret(form)
+    println(simpleClass(result) + " = " + result)
+  }
+
   private def giveOutput(programText: String) {
     try {
       Reader.read(programText) match {
-        case Right(listForms) => {
-          for (form <- listForms.lst) {
-            val result = interpreter.interpret(form)
-            println(simpleClass(result) + " = " + result)
+        case Right(ToyQList(forms)) => {
+          for (form <- forms) {
+            interpret(form)
           }
         }
+        case Right(form) => interpret(form)
         case Left(msg) => throw SyntaxError(msg)
       }
     }

@@ -5,10 +5,10 @@ import scala.util.parsing.combinator._
 object Reader {
 
 
-  def read(programText: String): Either[String, ToyList] = {
+  def read(programText: String): Either[String, ToyForm] = {
     import Parser._
     parseAll(toyProgram, programText) match {
-      case Success(form, _) => Right(form)
+      case Success(form, _) => Right(recognizeLambdas(form))
       case NoSuccess(msg, _) => Left(msg)
     }
   }
@@ -16,7 +16,7 @@ object Reader {
   private[toylisp] object Parser extends RegexParsers with JavaTokenParsers {
 
     //in the tradition of Lisp, a program is a list of forms
-    lazy val toyProgram: Parser[ToyList] = (((ws*) ~> toyForm <~ (ws*))*) ^^ {ToyList(_)}
+    lazy val toyProgram: Parser[ToyForm] = (((ws*) ~> toyForm <~ (ws*))*) ^^ {ToyQList(_)}
 
     //we will handle whitepsace ourselves
     override val skipWhitespace = false
@@ -43,7 +43,7 @@ object Reader {
         val sExpr = "(" + chars.mkString(" ") + ")"
         parse(toyList, sExpr).get
       }
-    } 
+    }
 
     //list types parser
     lazy val toyList: Parser[ToyList] = lParen ~> (((ws*) ~> toyForm <~ (ws*))*) <~ rParen ^^ {
@@ -56,9 +56,26 @@ object Reader {
     //"primitive types", list types, and sugar types together make all the forms
     lazy val toyForm: Parser[ToyForm] = toySymbol | toyNumber | toyChar | toyList | toyQList | toyString
   }
+
+  def recognizeLambdas(form: ToyForm): ToyForm = {
+    form match {
+      case ToyLambda(_, _) => form // not actually going to get called...
+      case ToyQList(q) => ToyQList(q map recognizeLambdas)
+      case ToyList(List(ToySymbol("lambda"),
+                        ToyList(List(ToySymbol(argname))),
+                        body)) =>
+           ToyLambda(List(argname), recognizeLambdas(body))
+
+      case ToyChar(_) | ToyNumber(_) | ToySymbol(_) => form
+      case ToyList(forms) => ToyList(forms map recognizeLambdas)
+    }
+  }
 }
 
 sealed abstract class ToyForm
+case class ToyLambda(args : List[String], body: ToyForm) extends ToyForm {
+  override val toString = "<lambda " + args.toString + " -> " + body.toString + ">"
+}
 case class ToyChar  (chr: Char)          extends ToyForm {
   override val toString = "'" + chr.toString + "'"
 }
