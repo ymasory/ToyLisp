@@ -15,7 +15,7 @@ object Reader {
 
   private[toylisp] object Parser extends RegexParsers with JavaTokenParsers {
 
-    //in the tradition of Lisp, a program is a List of Lists
+    //in the tradition of Lisp, a program is a list of lists
     lazy val program: Parser[ToyList] = (((ws*) ~> toyList <~ (ws*))*) ^^ {ToyList(_)}
 
     //we will handle whitepsace ourselves
