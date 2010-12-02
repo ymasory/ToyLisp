@@ -10,11 +10,12 @@ Install sbt <http://code.google.com/p/simple-build-tool/>.
 Language
 --------
 # syntax #
-- blah    = evaluated symbol
-- (blah)  = function call, n-ary
-- '(blah) = unevaluated list, the list is just data
-- "blah"  = string (list of scala.Char)
-- 3.14    = number (scala.Double)
+- foo    = evaluated symbol
+- (foo)  = function call, n-ary
+- '(foo) = unevaluated list, the list is just data
+- "foo"  = string (list of characters)
+- 'f'    = character (scala.Char)
+- 3.14   = number (scala.Double)
 
 # built-in #
 - defn (named functions)
