@@ -23,18 +23,16 @@ Language
 - set (assignment)
 - lambda
 - cons, head, tail
-- cton, ntoc
+- num>char, char>num (convert between numbers and chars)
 - <=, +, floor, opp
-- if
+- if (empty list and zero are falsy)
 - eq
 - print
 - identity
+- list?, char?, num?
 
 # implementation #
-- arbitrary nesting supported
-- recursion supported
 - no quoting mechanism beyond creating unevaluated lists using the ' syntax
-- everything is in one big dynamic scope
-- one namespace
-- all evaluation is eager
+- everything is in one big dynamic scope, one namespace
+
 
