@@ -7,7 +7,7 @@ object Reader {
 
   def read(programText: String) = {
     import Parser._
-    parseAll(toyList, programText) match {
+    parseAll(program, programText) match {
       case Success(ast, _) => Some(ast)
       case _ => None
     }
@@ -15,7 +15,7 @@ object Reader {
 
   private[toylisp] object Parser extends RegexParsers with JavaTokenParsers {
 
-    lazy val program: Parser[List[ToyList]] = (ws*) ~> (toyList*) <~ (ws*)
+    lazy val program: Parser[List[ToyList]] = ((ws*) ~> toyList <~ (ws*))*
 
     //we will handle whitepsace ourselves
     override val skipWhitespace = false
