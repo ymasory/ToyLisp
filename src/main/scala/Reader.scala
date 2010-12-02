@@ -60,7 +60,7 @@ object Reader {
 
 sealed abstract class ToyForm
 case class ToyChar  (chr: Char)          extends ToyForm {
-  override val toString = chr.toString
+  override val toString = "'" + chr.toString + "'"
 }
 case class ToyNumber(dub: Double)        extends ToyForm {
   override val toString = dub.toString
