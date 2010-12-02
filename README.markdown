@@ -13,7 +13,7 @@ Language
 # syntax #
 - foo    = evaluated symbol
 - (foo)  = function call, n-ary
-- '(foo) = unevaluated list, the list is just data
+- [foo]  = list
 - "foo"  = string (list of characters)
 - 'f'    = character (scala.Char)
 - 3.14   = number (scala.Double)
@@ -23,6 +23,7 @@ Language
 - set    (assignment)
 - lambda (anonymous function)
 - if     (conditional -- empty list and zero are falsy)
+- do     (sequence of forms)
 
 # built-in function #
 - print
