@@ -26,7 +26,7 @@ Language
 - num>char, char>num (convert between numbers and chars)
 - <=, +, floor, opp
 - if (empty list and zero are falsy)
-- eq
+- eq?
 - print
 - identity
 - list?, char?, num?
