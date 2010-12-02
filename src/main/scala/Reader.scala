@@ -27,7 +27,7 @@ object Reader {
     lazy val ws    : Parser[String] = """\s+""".r
 
     lazy val toyToken : Parser[ToyToken]  = """[a-zA-Z_@~%!=#\-\+\*\?\^\&]+""".r ^^ {ToyToken(_)}
-    lazy val toyString: Parser[ToyString] = dQuote ~> "[^\"]*".r <~ dQuote ^^ {s => ToyString(s)}
+    lazy val toyString: Parser[ToyString] = dQuote ~> "[^\"]*".r <~ dQuote ^^ {ToyString(_)}
     lazy val toyNumber: Parser[ToyNumber] = floatingPointNumber ^^ {
       x => ToyNumber(x.toDouble)
     }
