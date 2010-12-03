@@ -9,6 +9,7 @@ class Interpreter {
 
   def truthy = ToyNumber(1.0)
   def falsy = ToyNumber(0.0)
+  def emptyList = ToyQList(List())
 
   def isFalsy(form : ToyForm) : Boolean = {
     form match {
@@ -38,6 +39,24 @@ class Interpreter {
     lst match {
       case ToyList(h :: t) =>
         h match {
+         case ToyLambda(args, body) => {
+           if (args.length == t.length) {
+             for (i <- (0 until args.length)) {
+               environment.update(args(i), interpret(t(i)))
+             }
+             interpret(body)
+           } else {
+             throw SyntaxError("tried to call a lambda with wrong number of args")
+           }
+         }
+         case ToySymbol("set!") =>
+                t match {
+                  case List(ToySymbol(v), form) => {
+                    environment.update(ToySymbol(v), interpret(form))
+                    emptyList
+                  }
+                  case _ => throw SyntaxError("set needs a symbol and a form")
+                }
          case ToySymbol("list?") =>
                 (t map interpret) match {
                   case List(ToyQList(_)) => truthy
