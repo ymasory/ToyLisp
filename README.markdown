@@ -15,8 +15,8 @@ Language
 - (foo)  = function call, n-ary
 - [foo]  = list
 - "foo"  = string (list of characters)
-- 'f'    = character (scala.Char)
-- 3.14   = number (scala.Double)
+- 'c'    = character
+- 3.14   = number
 
 # special forms #
 - set!   (assignment)
