@@ -16,7 +16,7 @@ object Reader {
   private[toylisp] object Parser extends RegexParsers with JavaTokenParsers {
 
     //in the tradition of Lisp, a program is a list of forms
-    lazy val toyProgram: Parser[ToyForm] = (((ws*) ~> toyForm <~ (ws*))*) ^^ {ToyQList(_)}
+    lazy val toyProgram: Parser[ToyForm] = (((ws*) ~> toyForm <~ (ws*))*) ^^ {ToyList(_)}
 
     //we will handle whitepsace ourselves
     override val skipWhitespace = false
@@ -37,24 +37,24 @@ object Reader {
     }
 
     //syntactic sugar parsers
-    lazy val toyString: Parser[ToyList] = stringLiteral ^^ {
+    lazy val toyString: Parser[ToyCall] = stringLiteral ^^ {
       str => {
         val chars = str.substring(1, str.length - 1).toList.map(quoteStr + _ + quoteStr)
         val sExpr = "(" + chars.mkString(" ") + ")"
-        parse(toyList, sExpr).get
+        parse(toyCall, sExpr).get
       }
     }
 
     //list types parser
-    lazy val toyList: Parser[ToyList] = lParen ~> (((ws*) ~> toyForm <~ (ws*))*) <~ rParen ^^ {
-      forms => ToyList(forms)
+    lazy val toyCall: Parser[ToyCall] = lParen ~> (((ws*) ~> toyForm <~ (ws*))*) <~ rParen ^^ {
+      forms => ToyCall(forms)
     }
-    lazy val toyQList: Parser[ToyQList] = quote ~> toyList ^^ {
-      case ToyList(lists) => ToyQList(lists)
+    lazy val toyList: Parser[ToyList] = quote ~> toyCall ^^ {
+      case ToyCall(lists) => ToyList(lists)
     }
 
     //"primitive types", list types, and sugar types together make all the forms
-    lazy val toyForm: Parser[ToyForm] = toySymbol | toyNumber | toyChar | toyList | toyQList | toyString
+    lazy val toyForm: Parser[ToyForm] = toySymbol | toyNumber | toyChar | toyCall | toyList | toyString
   }
 
   def isSymbol(form : ToyForm) : Boolean = {
@@ -67,9 +67,9 @@ object Reader {
   def recognizeSpecialForms(form: ToyForm): ToyForm = {
     form match {
       case ToyLambda(_, _) | ToyDo(_) => form // not actually going to get called...
-      case ToyQList(q) => ToyQList(q map recognizeSpecialForms)
-      case ToyList(List(ToySymbol("lambda"),
-                        ToyList(args),
+      case ToyList(q) => ToyList(q map recognizeSpecialForms)
+      case ToyCall(List(ToySymbol("lambda"),
+                        ToyCall(args),
                         body)) =>
          if (args.forall (a => isSymbol(a))) {
            ToyLambda(  (for (ToySymbol(a) <- args) yield ToySymbol(a)).toList,
@@ -77,9 +77,9 @@ object Reader {
          } else {
            throw SyntaxError("lambda requires only symbol names in arg list")
          }
-      case ToyList( ToySymbol("do") :: stmts ) => ToyDo(stmts)
+      case ToyCall( ToySymbol("do") :: stmts ) => ToyDo(stmts)
       case ToyChar(_) | ToyNumber(_) | ToySymbol(_) => form
-      case ToyList(forms) => ToyList(forms map recognizeSpecialForms)
+      case ToyCall(forms) => ToyCall(forms map recognizeSpecialForms)
     }
   }
 }
@@ -100,9 +100,9 @@ case class ToyNumber(dub: Double)        extends ToyForm {
 case class ToySymbol(str: String)        extends ToyForm {
   override val toString = str
 }
-case class ToyList  (lst: List[ToyForm]) extends ToyForm {
+case class ToyCall  (lst: List[ToyForm]) extends ToyForm {
   override val toString = "(" + lst.mkString(" ") + ")"
 }
-case class ToyQList (lst: List[ToyForm]) extends ToyForm {
+case class ToyList (lst: List[ToyForm]) extends ToyForm {
   override val toString = "[" + lst.mkString(" ") + "]"
 }

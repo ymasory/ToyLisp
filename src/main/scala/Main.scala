@@ -47,7 +47,7 @@ object Main {
   private def giveOutput(programText: String) {
     try {
       Reader.read(programText) match {
-        case Right(ToyQList(forms)) => {
+        case Right(ToyList(forms)) => {
           for (form <- forms) {
             interpret(form)
           }
