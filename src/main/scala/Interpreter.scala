@@ -23,6 +23,8 @@ class Interpreter {
 
   def interpret(form: ToyForm): ToyForm = {
     form match {
+      case ToyDo(stmts) => stmts.foldLeft (emptyList.asInstanceOf[ToyForm]) (
+                                           (acc,form) => interpret(form))
       case ToyLambda(_, _) => form
       case ToyChar(_) | ToyNumber(_) | ToyQList(_) => form
       case symb: ToySymbol => lookupSymbol(symb)

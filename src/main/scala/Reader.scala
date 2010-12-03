@@ -8,7 +8,7 @@ object Reader {
   def read(programText: String): Either[String, ToyForm] = {
     import Parser._
     parseAll(toyProgram, programText) match {
-      case Success(form, _) => Right(recognizeLambdas(form))
+      case Success(form, _) => Right(recognizeSpecialForms(form))
       case NoSuccess(msg, _) => Left(msg)
     }
   }
@@ -64,26 +64,30 @@ object Reader {
     }
   }
 
-  def recognizeLambdas(form: ToyForm): ToyForm = {
+  def recognizeSpecialForms(form: ToyForm): ToyForm = {
     form match {
-      case ToyLambda(_, _) => form // not actually going to get called...
-      case ToyQList(q) => ToyQList(q map recognizeLambdas)
+      case ToyLambda(_, _) | ToyDo(_) => form // not actually going to get called...
+      case ToyQList(q) => ToyQList(q map recognizeSpecialForms)
       case ToyList(List(ToySymbol("lambda"),
                         ToyList(args),
                         body)) =>
          if (args.forall (a => isSymbol(a))) {
            ToyLambda(  (for (ToySymbol(a) <- args) yield ToySymbol(a)).toList,
-                     recognizeLambdas(body))
+                     recognizeSpecialForms(body))
          } else {
            throw SyntaxError("lambda requires only symbol names in arg list")
          }
+      case ToyList( ToySymbol("do") :: stmts ) => ToyDo(stmts)
       case ToyChar(_) | ToyNumber(_) | ToySymbol(_) => form
-      case ToyList(forms) => ToyList(forms map recognizeLambdas)
+      case ToyList(forms) => ToyList(forms map recognizeSpecialForms)
     }
   }
 }
 
 sealed abstract class ToyForm
+case class ToyDo(stmts : List[ToyForm]) extends ToyForm {
+  override val toString = "(do " + stmts.mkString(" ") + ")"
+}
 case class ToyLambda(args : List[ToySymbol], body: ToyForm) extends ToyForm {
   override val toString = "<lambda " + args.toString + " -> " + body.toString + ">"
 }
@@ -100,5 +104,5 @@ case class ToyList  (lst: List[ToyForm]) extends ToyForm {
   override val toString = "(" + lst.mkString(" ") + ")"
 }
 case class ToyQList (lst: List[ToyForm]) extends ToyForm {
-  override val toString = "(" + lst.mkString(" ") + ")"
+  override val toString = "[" + lst.mkString(" ") + "]"
 }
