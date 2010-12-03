@@ -134,22 +134,6 @@ class Interpreter {
   }
 }
 
-  // private def handleLambda(lambda: ToyLambda, forms: List[ToyForm]) = {
-  //   lambda match {
-  //     case ToyLambda(args, body) => {
-  //       if (args.length == forms.length) {
-  //         for (i <- (0 until args.length)) {
-  //           environment.update(args(i), interpret(forms(i)))
-  //         }
-  //         interpret(body)
-  //       }
-  //       else throw SyntaxError("tried to call a lambda with wrong number of args")
-  //     }
-  //   }
-  // }
-
-
-
 case class UnboundSymbolError(msg: String) extends Exception(msg)
 case class SyntaxError(msg: String) extends Exception(msg)
 
