@@ -38,8 +38,8 @@ class Interpreter {
     interpret(form)
   }
 
-  private def functionApplication(lst: ToyCall): ToyForm = {
-    lst match {
+  private def functionApplication(toyCall: ToyCall): ToyForm = {
+    toyCall match {
       case ToyCall(h :: t) => h match {
         case ToyLambda(args, body) => {
           if (args.length == t.length) {
@@ -101,7 +101,7 @@ class Interpreter {
         }
         case ToySymbol("cons") => (t map interpret) match {
           case List(a, ToyList(q)) => ToyList(interpret(a) :: q)
-          case _ => throw SyntaxError("cons needs a toyform and a quoted list")
+          case _ => throw SyntaxError("cons needs a form and a list")
         }
         case ToySymbol("head") => (t map interpret) match {
           case List(ToyList(h :: t)) => h
@@ -115,9 +115,15 @@ class Interpreter {
           case List(cond, ift, iff) => interpret(  if (isFalsy(interpret(cond))) ift else iff  )
           case _ => throw SyntaxError("if requires three arguments")
         }
-        case userFunc => interpret(userFunc)
+        case userFunc => {
+          interpret(userFunc) match {
+            case tl: ToyLambda => toyCall //not sure what to do here so just returning the input
+            case _ => throw SyntaxError("first element of a function call must be" + 
+                                        " the lambda keyword or result in a lambda")
+          }
+        }
       }
-      case _ => lst
+      case _ => throw SyntaxError("use [] for empty list")
     }
   }
 }
