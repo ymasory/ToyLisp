@@ -26,6 +26,8 @@ object Reader {
     //handy string/regex parsers
     lazy val lParen: Parser[String] = "("
     lazy val rParen: Parser[String] = ")"
+    lazy val lBrack: Parser[String] = "["
+    lazy val rBrack: Parser[String] = "]"
     lazy val quote : Parser[String] = quoteStr
     lazy val ws    : Parser[String] = """\s+""".r
 
@@ -47,10 +49,10 @@ object Reader {
 
     //list types parser
     lazy val toyCall: Parser[ToyCall] = lParen ~> (((ws*) ~> toyForm <~ (ws*))*) <~ rParen ^^ {
-      forms => ToyCall(forms)
+      ToyCall(_)
     }
-    lazy val toyList: Parser[ToyList] = quote ~> toyCall ^^ {
-      case ToyCall(lists) => ToyList(lists)
+    lazy val toyList: Parser[ToyList] = lBrack ~> (((ws*) ~> toyForm <~ (ws*))*) <~ rBrack ^^ {
+      ToyList(_)
     }
 
     //"primitive types", list types, and sugar types together make all the forms
