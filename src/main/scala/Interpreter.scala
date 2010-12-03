@@ -97,7 +97,7 @@ class Interpreter {
         }
         case ToySymbol("floor") => (t map interpret) match {
           case List(ToyNumber(a)) => ToyNumber(java.lang.Math.floor(a))
-          case _ => throw SyntaxError("floor")
+          case _ => throw SyntaxError("floor requires one argument")
         }
         case ToySymbol("cons") => (t map interpret) match {
           case List(a, ToyList(q)) => ToyList(interpret(a) :: q)
@@ -113,7 +113,7 @@ class Interpreter {
         }
         case ToySymbol("if") => t match {
           case List(cond, ift, iff) => interpret(  if (isFalsy(interpret(cond))) ift else iff  )
-          case _ => throw SyntaxError("if")
+          case _ => throw SyntaxError("if requires three arguments")
         }
         case userFunc => interpret(userFunc)
       }
