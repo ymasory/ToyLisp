@@ -19,7 +19,6 @@ Language
 - 3.14   = number (scala.Double)
 
 # special forms #
-- defn   (named function)
 - set!   (assignment)
 - lambda (anonymous function)
 - if     (conditional -- empty list and zero are falsy)
@@ -34,7 +33,6 @@ Language
 - list?, char?, num?
 
 # implementation #
-- no quoting mechanism beyond creating unevaluated lists using the ' syntax
-- everything is in one big dynamic scope, one namespace
+- everything is in one big dynamic scope and one namespace
 
 
