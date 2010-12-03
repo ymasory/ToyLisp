@@ -57,15 +57,26 @@ object Reader {
     lazy val toyForm: Parser[ToyForm] = toySymbol | toyNumber | toyChar | toyList | toyQList | toyString
   }
 
+  def isSymbol(form : ToyForm) : Boolean = {
+    form match {
+      case ToySymbol(_) => true
+      case _ => false
+    }
+  }
+
   def recognizeLambdas(form: ToyForm): ToyForm = {
     form match {
       case ToyLambda(_, _) => form // not actually going to get called...
       case ToyQList(q) => ToyQList(q map recognizeLambdas)
       case ToyList(List(ToySymbol("lambda"),
-                        ToyList(List(ToySymbol(argname))),
+                        ToyList(args),
                         body)) =>
-           ToyLambda(List(argname), recognizeLambdas(body))
-
+         if (args.forall (a => isSymbol(a))) {
+           ToyLambda(  (for (ToySymbol(a) <- args) yield ToySymbol(a)).toList,
+                     recognizeLambdas(body))
+         } else {
+           throw SyntaxError("lambda requires only symbol names in arg list")
+         }
       case ToyChar(_) | ToyNumber(_) | ToySymbol(_) => form
       case ToyList(forms) => ToyList(forms map recognizeLambdas)
     }
@@ -73,7 +84,7 @@ object Reader {
 }
 
 sealed abstract class ToyForm
-case class ToyLambda(args : List[String], body: ToyForm) extends ToyForm {
+case class ToyLambda(args : List[ToySymbol], body: ToyForm) extends ToyForm {
   override val toString = "<lambda " + args.toString + " -> " + body.toString + ">"
 }
 case class ToyChar  (chr: Char)          extends ToyForm {
