@@ -7,20 +7,6 @@ import scala.collection.{mutable => m}
   */
 class Interpreter {
 
-  val one = ToyNumber(1.0)
-  val zero = ToyNumber(0.0)
-  val emptyList = ToyList(Nil)
-
-  def isFalsy(form: ToyForm): Boolean = {
-    form match {
-      case ToyCall(Nil) => true
-      case `zero` => true
-      case _ => false
-    }
-  }
-
-  val environment = m.Map.empty[ToySymbol, ToyForm]
-
   def interpret(form: ToyForm): ToyForm = {
     form match {
       case ToyDo(stmts) => stmts.foldLeft(emptyList.asInstanceOf[ToyForm]){
@@ -33,12 +19,26 @@ class Interpreter {
     }
   }
 
-  def lookupSymbol(symb: ToySymbol) = {
+  private val one = ToyNumber(1.0)
+  private val zero = ToyNumber(0.0)
+  private val emptyList = ToyList(Nil)
+
+  private def isFalsy(form: ToyForm): Boolean = {
+    form match {
+      case ToyCall(Nil) => true
+      case `zero` => true
+      case _ => false
+    }
+  }
+
+  private val environment = m.Map.empty[ToySymbol, ToyForm]
+
+  private def lookupSymbol(symb: ToySymbol) = {
     val form = environment getOrElse (symb, throw UnboundSymbolError(symb.toString))
     interpret(form)
   }
 
-  def functionApplication(lst: ToyCall): ToyForm = {
+  private def functionApplication(lst: ToyCall): ToyForm = {
     lst match {
       case ToyCall(h :: t) => h match {
         case ToyLambda(args, body) => {
