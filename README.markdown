@@ -20,7 +20,7 @@ Language
 
 # special forms #
 - defn   (named function)
-- set    (assignment)
+- set!   (assignment)
 - lambda (anonymous function)
 - if     (conditional -- empty list and zero are falsy)
 - do     (sequence of forms)
