@@ -9,11 +9,11 @@ class Interpreter {
 
   def truthy = ToyNumber(1.0)
   def falsy = ToyNumber(0.0)
-  def emptyList = ToyQList(List())
+  def emptyList = ToyList(List())
 
   def isFalsy(form : ToyForm) : Boolean = {
     form match {
-      case ToyList(List()) => true
+      case ToyCall(List()) => true
       case ToyNumber(0.0) => true
       case _ => false
     }
@@ -26,9 +26,9 @@ class Interpreter {
       case ToyDo(stmts) => stmts.foldLeft (emptyList.asInstanceOf[ToyForm]) (
                                            (acc,form) => interpret(form))
       case ToyLambda(_, _) => form
-      case ToyChar(_) | ToyNumber(_) | ToyQList(_) => form
+      case ToyChar(_) | ToyNumber(_) | ToyList(_) => form
       case symb: ToySymbol => lookupSymbol(symb)
-      case lst: ToyList => functionApplication(lst)
+      case lst: ToyCall => functionApplication(lst)
     }
   }
 
@@ -37,9 +37,9 @@ class Interpreter {
     interpret(form)
   }
 
-  def functionApplication(lst: ToyList): ToyForm = {
+  def functionApplication(lst: ToyCall): ToyForm = {
     lst match {
-      case ToyList(h :: t) =>
+      case ToyCall(h :: t) =>
         h match {
          case ToyLambda(args, body) => {
            if (args.length == t.length) {
@@ -61,7 +61,7 @@ class Interpreter {
                 }
          case ToySymbol("list?") =>
                 (t map interpret) match {
-                  case List(ToyQList(_)) => truthy
+                  case List(ToyList(_)) => truthy
                   case _ => falsy
                 }
          case ToySymbol("char?") =>
@@ -78,7 +78,7 @@ class Interpreter {
                 (t map interpret) match {
                   case List(ToyNumber(a), ToyNumber(b)) => if (a == b) truthy else falsy
                   case List(ToyChar(a), ToyChar(b)) => if (a == b) truthy else falsy
-                  case List(ToyQList(a), ToyQList(b)) => if (a == b) truthy else falsy
+                  case List(ToyList(a), ToyList(b)) => if (a == b) truthy else falsy
                   case _ => falsy
                 }
          case ToySymbol("char>num") =>
@@ -115,17 +115,17 @@ class Interpreter {
                 }
            case ToySymbol("cons") =>
                 (t map interpret) match {
-                  case List(a, ToyQList(q)) => ToyQList(interpret(a) :: q)
+                  case List(a, ToyList(q)) => ToyList(interpret(a) :: q)
                   case _ => throw SyntaxError("cons needs a toyform and a quoted list")
                 }
            case ToySymbol("head") =>
                 (t map interpret) match {
-                  case List(ToyQList(h :: t)) => h
+                  case List(ToyList(h :: t)) => h
                   case _ => throw SyntaxError("head needs a non-empty quoted list")
                 }
            case ToySymbol("tail") =>
                 (t map interpret) match {
-                  case List(ToyQList(h :: t)) => ToyQList(t)
+                  case List(ToyList(h :: t)) => ToyList(t)
                   case _ => throw SyntaxError("tail needs a non-empty quoted list")
                 }
            case ToySymbol("if") =>
