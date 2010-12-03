@@ -25,7 +25,6 @@ Language
 - do     (sequence of forms)
 
 # built-in function #
-- print
 - cons, head, tail
 - num>char, char>num
 - <=, +, floor, opp
