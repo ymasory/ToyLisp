@@ -7,8 +7,8 @@ import scala.collection.{mutable => m}
   */
 class Interpreter {
 
-  def truthy = ToyNumber(1.0)
-  def falsy = ToyNumber(0.0)
+  def one = ToyNumber(1.0)
+  def zero = ToyNumber(0.0)
   def emptyList = ToyList(List())
 
   def isFalsy(form: ToyForm): Boolean = {
@@ -58,22 +58,22 @@ class Interpreter {
           case _ => throw SyntaxError("set needs a symbol and a form")
         }
         case ToySymbol("list?") => (t map interpret) match {
-          case List(ToyList(_)) => truthy
-          case _ => falsy
+          case List(ToyList(_)) => one
+          case _ => zero
         }
         case ToySymbol("char?") => (t map interpret) match {
-          case List(ToyChar(_)) => truthy
-          case _ => falsy
+          case List(ToyChar(_)) => one
+          case _ => zero
         }
         case ToySymbol("num?") => (t map interpret) match {
-          case List(ToyNumber(_)) => truthy
-          case _ => falsy
+          case List(ToyNumber(_)) => one
+          case _ => zero
         }
         case ToySymbol("eq?") => (t map interpret) match {
-          case List(ToyNumber(a), ToyNumber(b)) => if (a == b) truthy else falsy
-          case List(ToyChar(a), ToyChar(b)) => if (a == b) truthy else falsy
-          case List(ToyList(a), ToyList(b)) => if (a == b) truthy else falsy
-          case _ => falsy
+          case List(ToyNumber(a), ToyNumber(b)) => if (a == b) one else zero
+          case List(ToyChar(a), ToyChar(b)) => if (a == b) one else zero
+          case List(ToyList(a), ToyList(b)) => if (a == b) one else zero
+          case _ => zero
         }
         case ToySymbol("char>num") => (t map interpret) match {
           case List(ToyChar(c)) => ToyNumber(c.toInt)
