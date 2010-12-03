@@ -7,14 +7,14 @@ import scala.collection.{mutable => m}
   */
 class Interpreter {
 
-  def one = ToyNumber(1.0)
-  def zero = ToyNumber(0.0)
-  def emptyList = ToyList(List())
+  val one = ToyNumber(1.0)
+  val zero = ToyNumber(0.0)
+  val emptyList = ToyList(Nil)
 
   def isFalsy(form: ToyForm): Boolean = {
     form match {
       case ToyCall(Nil) => true
-      case ToyNumber(0.0) => true
+      case `zero` => true
       case _ => false
     }
   }
@@ -92,7 +92,7 @@ class Interpreter {
           case _ => throw SyntaxError("opp needs one number")
         }
         case ToySymbol("<=") => (t map interpret) match {
-          case List(ToyNumber(a), ToyNumber(b)) => ToyNumber(if (a <= b) 1.0 else 0.0)
+          case List(ToyNumber(a), ToyNumber(b)) => if (a <= b) one else zero
           case _ => throw SyntaxError("plus needs two numbers")
         }
         case ToySymbol("floor") => (t map interpret) match {
