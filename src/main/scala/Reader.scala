@@ -32,7 +32,7 @@ object Reader {
     lazy val ws    : Parser[String] = """\s+""".r
 
     //"primitive types" parsers
-    lazy val toySymbol: Parser[ToySymbol] = """[a-zA-Z_@~%!=#\-\+\*\?\^\&]+""".r ^^ {ToySymbol(_)}
+    lazy val toySymbol: Parser[ToySymbol] = """[a-zA-Z_@~%!=#<>\-\+\*\?\^\&]+""".r ^^ {ToySymbol(_)}
     lazy val toyChar  : Parser[ToyChar]   = quote ~> "[^.]".r <~ quote ^^ {s => ToyChar(s charAt 0)}
     lazy val toyNumber: Parser[ToyNumber] = floatingPointNumber ^^ {
       str => ToyNumber(str.toDouble)
