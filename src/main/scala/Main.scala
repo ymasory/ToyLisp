@@ -39,7 +39,7 @@ object Main {
     }
   }
 
-  private def interpret(form : ToyForm) {
+  private def eval(form : ToyForm) {
     val result = interpreter.interpret(form)
     println(simpleClass(result) + " = " + result)
   }
@@ -49,10 +49,10 @@ object Main {
       Reader.read(programText) match {
         case Right(ToyList(forms)) => {
           for (form <- forms) {
-            interpret(form)
+            eval(form)
           }
         }
-        case Right(form) => interpret(form)
+        case Right(form) => eval(form)
         case Left(msg) => throw SyntaxError(msg)
       }
     }

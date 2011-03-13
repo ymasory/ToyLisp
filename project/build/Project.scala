@@ -8,9 +8,13 @@ class Project(info: ProjectInfo) extends DefaultProject(info) with ProguardProje
   //managed dependencies from externa repositories
   val jline = "jline" % "jline" % "0.9.94"
   val sourceforgeJline = "http://jline.sourceforge.net/m2repo"
+
+  //turn down logging a bit
+  log setLevel Level.Warn
+  log setTrace 2
   
   //files to go in packaged jars
-  val extraResources = "README.markdown" +++ "LICENSE"
+  val extraResources = "README.md" +++ "LICENSE"
   override val mainResources = super.mainResources +++ extraResources
 
   //program entry point
