@@ -16,7 +16,8 @@ object Reader {
   private[toylisp] object Parser extends RegexParsers with JavaTokenParsers {
 
     //in the tradition of Lisp, a program is a list of forms
-    lazy val toyProgram: Parser[ToyForm] = (((ws*) ~> toyForm <~ (ws*))*) ^^ {ToyList(_)}
+    lazy val toyProgram: Parser[ToyList] =
+      (((ws*) ~> toyForm <~ (ws*))*) ^^ {ToyList(_)}
 
     //we will handle whitepsace ourselves
     override val skipWhitespace = false
@@ -32,8 +33,10 @@ object Reader {
     lazy val ws    : Parser[String] = """\s+""".r
 
     //"primitive types" parsers
-    lazy val toySymbol: Parser[ToySymbol] = """[a-zA-Z_@~%!=#<>\+\*\?\^\&]+""".r ^^ {ToySymbol(_)}
-    lazy val toyChar  : Parser[ToyChar]   = quote ~> "[^.]".r <~ quote ^^ {s => ToyChar(s charAt 0)}
+    lazy val toySymbol: Parser[ToySymbol] =
+      """[a-zA-Z_@~%!=#<>\+\*\?\^\&]+""".r ^^ {ToySymbol(_)}
+    lazy val toyChar  : Parser[ToyChar]   =
+      quote ~> "[^.]".r <~ quote ^^ {s => ToyChar(s charAt 0)}
     lazy val toyNumber: Parser[ToyNumber] = floatingPointNumber ^^ {
       str => ToyNumber(str.toDouble)
     }
@@ -41,22 +44,22 @@ object Reader {
     //syntactic sugar parsers
     lazy val toyString: Parser[ToyCall] = stringLiteral ^^ {
       str => {
-        val chars = str.substring(1, str.length - 1).toList.map(quoteStr + _ + quoteStr)
+        val chars =
+          str.substring(1, str.length - 1).toList.map(quoteStr + _ + quoteStr)
         val sExpr = "(" + chars.mkString(" ") + ")"
         parse(toyCall, sExpr).get
       }
     }
 
     //list types parser
-    lazy val toyCall: Parser[ToyCall] = lParen ~> (((ws*) ~> toyForm <~ (ws*))*) <~ rParen ^^ {
-      ToyCall(_)
-    }
-    lazy val toyList: Parser[ToyList] = lBrack ~> (((ws*) ~> toyForm <~ (ws*))*) <~ rBrack ^^ {
-      ToyList(_)
-    }
+    lazy val toyCall: Parser[ToyCall] =
+      lParen ~> (((ws*) ~> toyForm <~ (ws*))*) <~ rParen ^^ { ToyCall(_) }
+    lazy val toyList: Parser[ToyList] =
+      lBrack ~> (((ws*) ~> toyForm <~ (ws*))*) <~ rBrack ^^ { ToyList(_) }
 
     //"primitive types", list types, and sugar types together make all the forms
-    lazy val toyForm: Parser[ToyForm] = toySymbol | toyNumber | toyChar | toyCall | toyList | toyString
+    lazy val toyForm: Parser[ToyForm] =
+      toySymbol | toyNumber | toyChar | toyCall | toyList | toyString
   }
 
   def isSymbol(form : ToyForm) : Boolean = {
@@ -68,7 +71,7 @@ object Reader {
 
   def recognizeSpecialForms(form: ToyForm): ToyForm = {
     form match {
-      case ToyLambda(_, _) | ToyDo(_) => form // not actually going to get called...
+      case ToyLambda(_, _) | ToyDo(_) => form // eliminate, unreachable
       case ToyList(q) => ToyList(q map recognizeSpecialForms)
       case ToyCall(List(ToySymbol("lambda"),
                         ToyCall(args),
@@ -91,7 +94,8 @@ case class ToyDo(stmts : List[ToyForm]) extends ToyForm {
   override val toString = "(do " + stmts.mkString(" ") + ")"
 }
 case class ToyLambda(args : List[ToySymbol], body: ToyForm) extends ToyForm {
-  override val toString = "<lambda " + args.toString + " -> " + body.toString + ">"
+  override val toString =
+    "<lambda " + args.toString + " -> " + body.toString + ">"
 }
 case class ToyChar  (chr: Char)          extends ToyForm {
   override val toString = "'" + chr.toString + "'"

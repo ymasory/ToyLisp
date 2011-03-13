@@ -1,16 +1,17 @@
 package com.yuvimasory.toylisp
 
-import scala.collection.{mutable => m}
+import scala.collection.{ mutable => m }
 
 /** A stateful interpreter.
-  * Later invocations of `interpret` are affected by earlier ones.
-  */
+ * Later invocations of `interpret` are affected by earlier ones.
+ */
 class Interpreter {
 
   def interpret(form: ToyForm): ToyForm = {
     form match {
-      case ToyDo(stmts) => stmts.foldLeft(emptyList.asInstanceOf[ToyForm]){
-        (_, form) => interpret(form)
+      case ToyDo(stmts) => stmts.foldLeft(
+        emptyList.asInstanceOf[ToyForm]) { (_, form) =>
+          interpret(form)
       }
       case ToyLambda(_, _) => form
       case ToyChar(_) | ToyNumber(_) | ToyList(_) => form
@@ -34,7 +35,8 @@ class Interpreter {
   private val environment = m.Map.empty[ToySymbol, ToyForm]
 
   private def lookupSymbol(symb: ToySymbol) = {
-    val form = environment getOrElse (symb, throw UnboundSymbolError(symb.toString))
+    val form = environment getOrElse (symb,
+                                      throw UnboundSymbolError(symb.toString))
     interpret(form)
   }
 
@@ -47,7 +49,8 @@ class Interpreter {
           }
           interpret(body)
         }
-        else throw SyntaxError("tried to call a lambda with wrong number of args")
+        else
+          throw SyntaxError("tried to call a lambda with wrong number of args")
       }
     }
   }
@@ -118,14 +121,15 @@ class Interpreter {
           case _ => throw SyntaxError("tail needs a non-empty quoted list")
         }
         case ToySymbol("if") => restForms match {
-          case List(cond, ift, iff) => interpret(  if (falsy(interpret(cond))) ift else iff  )
+          case List(cond, ift, iff) => interpret(if (falsy(interpret(cond))) ift
+                                                 else iff)
           case _ => throw SyntaxError("if requires three arguments")
         }
         case userFunc => {
           interpret(userFunc) match {
             case tl: ToyLambda => handleLambda(tl, restForms)
-            case _ => throw SyntaxError("first element of a function call must be" + 
-                                        " the lambda keyword or result in a lambda")
+            case _ => throw SyntaxError("first element of a function call must" +
+              " be the lambda keyword or result in a lambda")
           }
         }
       }

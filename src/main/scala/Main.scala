@@ -1,26 +1,28 @@
 package com.yuvimasory.toylisp
 
-import java.io.{File, OutputStreamWriter}
+import java.io.{ File, OutputStreamWriter }
 
 import scala.io.Source
 
-import jline.{ConsoleReader, History}
+import jline.{ ConsoleReader, History }
 
 object Main {
 
   val Version = "0.1"
 
   val in = {
-    val consoleReader = new ConsoleReader(System.in, new OutputStreamWriter(System.out))
+    val consoleReader = new ConsoleReader(System.in,
+                                          new OutputStreamWriter(System.out))
     consoleReader setHistory (new History(new File(".toyhistory")))
     consoleReader setUseHistory true
     consoleReader setDefaultPrompt ">> "
     consoleReader
   }
+
   val interpreter = new Interpreter()
 
   def main(args: Array[String]) {
-    if(args.length > 0) runFile(args(0))
+    if (args.length > 0) runFile(args(0))
     else runInteractive()
   }
 
@@ -31,7 +33,7 @@ object Main {
 
   def runInteractive() {
     println("\nWelcome to Toy Lisp v" + Version + "! Press Ctrl+D to exit.\n")
-    while(true) {
+    while (true) {
       in.readLine() match {
         case input: String => giveOutput(input)
         case _ => return println("okbye!")
@@ -39,7 +41,7 @@ object Main {
     }
   }
 
-  private def eval(form : ToyForm) {
+  private def eval(form: ToyForm) {
     val result = interpreter.interpret(form)
     println(simpleClass(result) + " = " + result)
   }
@@ -52,14 +54,14 @@ object Main {
             eval(form)
           }
         }
-        case Right(form) => eval(form)
+        case Right(form) => eval(form) //eliminate this case
         case Left(msg) => throw SyntaxError(msg)
       }
-    }
-    catch {
+    } catch {
       case ex => Console.err println (simpleClass(ex) + ": " + ex.getMessage)
     }
   }
 
-  private def simpleClass(arg: AnyRef): String = arg.getClass.toString.split("\\s+")(1).split("\\.").last
+  private def simpleClass(arg: AnyRef): String =
+    arg.getClass.toString.split("\\s+")(1).split("\\.").last
 }
