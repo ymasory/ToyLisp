@@ -5,7 +5,7 @@ import scala.util.parsing.combinator._
 object Reader {
 
 
-  def read(programText: String): Either[String, ToyForm] = {
+  def read(programText: String): Either[String, ToyList] = {
     import Parser._
     parseAll(toyProgram, programText) match {
       case Success(form, _) => Right(recognizeSpecialForms(form))
@@ -69,8 +69,8 @@ object Reader {
     }
   }
 
-  def recognizeSpecialForms(form: ToyForm): ToyForm = {
-    form match {
+  def recognizeSpecialForms(form: ToyForm): ToyList = {
+    val m = form match {
       case ToyLambda(_, _) | ToyDo(_) => form // eliminate, unreachable
       case ToyList(q) => ToyList(q map recognizeSpecialForms)
       case ToyCall(List(ToySymbol("lambda"),
@@ -86,6 +86,7 @@ object Reader {
       case ToyChar(_) | ToyNumber(_) | ToySymbol(_) => form
       case ToyCall(forms) => ToyCall(forms map recognizeSpecialForms)
     }
+    ToyList(List(m))
   }
 }
 
