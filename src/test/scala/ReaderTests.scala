@@ -119,9 +119,15 @@ class ReaderTests extends FunSuite {
     parseShouldFail(toyForm, " ")
   }
 
-  test("toyListOfSymbols accepts") {
-    expect(ToyList(List(ToySymbol("foo")))) {
+  test("toyListOfSymbols accepts singletons") {
+    expect(List(ToySymbol("foo"))) {
       parseAll(toyListOfSymbols, "[foo]").get
+    }
+  }
+
+  test("toyListOfSymbols accepts multiples") {
+    expect(List(ToySymbol("foo"), ToySymbol("x"), ToySymbol("bar"))) {
+      parseAll(toyListOfSymbols, "[foo x bar]").get
     }
   }
 
