@@ -13,10 +13,11 @@ class EvalTests extends FunSuite {
     case Left(msg) => throw SyntaxError(msg)
   }
   def textTest(text: String, form: ToyForm) {
-    expect(ToyList(List(form))) {
-      run(text)
+    expect(form) {
+      run(text).asInstanceOf[ToyList].lst.last
     }
   }
+  val Dummy = EmptyList
 
   test("eval int") {
     textTest("1", ToyInt(1))
@@ -53,19 +54,16 @@ class EvalTests extends FunSuite {
     textTest("(opp 0)", ToyInt(0))
   }
 
-  // test("assignment") {
-  //   val ast = ToyCall(List(ToySymbol("set!"), ToySymbol("x"), ToyInt(1)))
-  //   expect((EmptyList, Map(ToySymbol("x") -> ToyInt(1)))) {
-  //     eval(ast, EmptyEnvironment)
-  //   }
-  // }
+  test("assignment") {
+    pending
+    textTest("(set! x 5) x", ToyInt(5))
+  }
 
-  // test("assignment requires a symbol and a form") {
-  //   val ast = ToyCall(List(ToySymbol("set!"), ToyInt(1), ToyInt(1)))
-  //   intercept[TypeError] {
-  //     evale(ast)
-  //   }
-  // }
+  test("assignment requires a symbol and a form") {
+    intercept[TypeError] {
+      textTest("(set! 1 3)", Dummy)
+    }
+  }
 
   // test("lambda plustwo") {
   //   val lambda = ToyLambda(
