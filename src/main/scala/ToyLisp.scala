@@ -87,8 +87,8 @@ case class ToyLambda(
 case class SyntaxError(msg: String) extends RuntimeException(msg)
 /* END PARSER */
 
-/* BEGIN INTERPRETER */
-object Interpreter {
+/* BEGIN EVALUATOR */
+object Evaluator {
   
   //AKA "symbol table"
   type Environment = Map[ToySymbol, ToyForm]
@@ -183,7 +183,7 @@ object Interpreter {
 
 case class UnboundSymbolError(msg: String) extends RuntimeException(msg)
 case class TypeError(msg: String) extends RuntimeException(msg)
-/* END INTERPRETER */
+/* END EVALUATOR */
 
 /* BEGIN MAIN */
 object Main {
@@ -213,7 +213,14 @@ object Main {
     println("\nWelcome to Toy Lisp! Press Ctrl+D to exit.\n")
     while (true) {
       in.readLine() match {
-        case input: String => interpret(input)
+        case input: String => {
+          val res = interpret(input)
+          res match {
+            case Left(form) => println("result = " + form)
+            case Right(msg) => Console.err println msg
+          }
+
+        }
         case _ => return println("okbye!")
       }
     }
@@ -223,22 +230,23 @@ object Main {
    * Interpret the programText, then if `quiet` is `false` prettily display
    * the output.
    */
-  private def interpret(programText: String, quiet: Boolean = false) {
+  def interpret(programText: String): Either[String, ToyForm] = {
     try {
       Reader.read(programText) match {
         case Right(ToyList(forms)) => {
-          var curEnv = Interpreter.EmptyEnvironment
+          var curRes: ToyForm = Evaluator.EmptyList
+          var curEnv: Evaluator.Environment = Evaluator.EmptyEnvironment
           for (form <- forms) {
-            val result = Interpreter eval (form, Interpreter.EmptyEnvironment)
-            if (quiet == false)
-              println("result = " + result._1)
+            val (res, env) = Evaluator eval (form, curEnv)
+            curRes = res
+            curEnv = env
           }
+          Right(curRes)
         }
         case Left(msg) => throw SyntaxError(msg)
       }
     } catch {
-      case ex =>
-        Console.err println (ex.getClass.getSimpleName + ": " + ex.getMessage)
+      case ex => Left(ex.getClass.getSimpleName + ": " + ex.getMessage)
     }
   }
 }

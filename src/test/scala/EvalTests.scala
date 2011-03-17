@@ -5,7 +5,7 @@ import org.scalatest.FunSuite
 //To reduce fragility these tests should really be on program text,
 //not on ASTs.
 class EvalTests extends FunSuite {
-  import Interpreter.{EmptyList, EmptyEnvironment, eval}
+  import Evaluator.{EmptyList, EmptyEnvironment, eval}
 
   def evale(form: ToyForm): ToyForm = eval(form, EmptyEnvironment)._1
   def run(text: String) = Reader.read(text) match {
@@ -14,7 +14,10 @@ class EvalTests extends FunSuite {
   }
   def textTest(text: String, form: ToyForm) {
     expect(form) {
-      run(text).asInstanceOf[ToyList].lst.last
+      Main.interpret(text) match {
+        case Right(form) => form
+        case _ => throw new MatchError
+      }
     }
   }
   val Dummy = EmptyList
@@ -55,12 +58,11 @@ class EvalTests extends FunSuite {
   }
 
   test("assignment") {
-    pending
     textTest("(set! x 5) x", ToyInt(5))
   }
 
   test("assignment requires a symbol and a form") {
-    intercept[TypeError] {
+    intercept[MatchError] {
       textTest("(set! 1 3)", Dummy)
     }
   }
@@ -70,7 +72,6 @@ class EvalTests extends FunSuite {
   }
 
   test("PHASE example") {
-    pending
     textTest(Common.phaseProgram, ToyInt(-5))
   }
 }
