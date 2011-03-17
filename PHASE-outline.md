@@ -31,7 +31,7 @@ Adapting from [Paul Graham](http://www.paulgraham.com/icad.html):
 
 1. fully parenthesized prefix notation
 2. conditionals
-3. function type
+3. lambdas and first class functions
 4. recursion
 5. dynamic typing
 6. garbage collection
@@ -51,11 +51,13 @@ ToyLisp supports supports 1-7.
 - I don't know about other text editors (vim, TextMage, etc)
 
 ## My workflow ##
-- Make GitHub project
-- Make sbt project
+- Make GitHub project.
+- Make sbt project.
 - Add other sbt tweaks.
 - Add Proguard to sbt.
-- Make ENSIME project
+- Make ENSIME project.
+- Add `Main` object.
+- Add a test class.
 
 # Interpreters #
 1. Sequence of characters -> tokens. (*lexing*).
