@@ -53,10 +53,10 @@ A *value* is an expression that cannot be evaluated any further.
 The parser (lisp-speak: the reader) does 1-3. The evaluator (lisp-speak: the `eval` function) does 4.
 
 ## Scala overview ##
-- `main` is a procedure that will read line after line of input from the user, interactively.
-- `main` feeds source text the `read` function of type `String => ToyList`.
-- `main` gives the `ToyList`, along with an empty `Environment`, to `eval` which is of type `(ToyList, Environment) -> ToyForm`. 
-- `main` them prints the resulting `ToyForm` value.
+- `interpret` is a procedure that transforms the program text into a value.
+- `interpret` feeds source text the `read` function of type `String => ToyList`.
+- `interpret` gives the `ToyList`, along with an empty `Environment`, to `eval` which is of type `(ToyList, Environment) -> (ToyForm, Environment)`. 
+- `interpret` then takes the last `ToyForm` of the program and prints the result.
 
 # Parsing #
 ## Why use parser combinators ##
@@ -73,23 +73,26 @@ The parser (lisp-speak: the reader) does 1-3. The evaluator (lisp-speak: the `ev
 - Disadvantages: extremely slow, lack formal results
 
 ## Top-level types and methods ##
-- `Parser[X]` is the type of a class for `Strings` into  `Xs`.
+- `Parser[X]` is the type of a class for some input into  `Xs`. It's a function object so it has an `apply` method. It also has some combinators unique to it.
 - Our parser (er, reader) will be a `Parser[ToyList]`.
-- `Parser.parseAll` parses **all** of its input or fails. Contrast with `Parser.parse`.
-- Beware of the cake pattern! You don't subclass `Parser`. You mix in `Parsers` and by doing so get access to `Parser` and its methods.
+- `Parsers.parseAll` parses **all** of its input or fails. Contrast with `Parser.parse`.
+- But how do we get our very first `Parser`? We don't want to subclass `Parser`.
 - `RegexParsers` gives you implicit conversions from regexes to `Parser` objects.
 - `JavaTokenParsers` gives you `Parser` objects for various Java tokens.
-- Huge gotcha: you need to override `skipWhitespace` otherwise you will lack fine grained control over whitespace.
+- FYI: you need to override `skipWhitespace` otherwise you will lack fine grained control over whitespace.
 
 ## Combinators ##
 - A *combinator* is a function that takes two elements from some domain, and returns another element from that same domain.
 - A *parser combinator* therefore takes two parsers and gives you a new parser.
-- Sequential combinators: `comb1 ~ comb2`, `combIgnored ~> comb`, `comb <~ combIgnored`
+- Sequential combinators: `comb1 ~ comb2`, `combIgnored ~> comb`, `comb <~ combIgnored`, `~!` guarantees no backtracking
 - Optional combinator: `op(comb)`
 - Repetition combinators: `comb *`, `comb +`
-- Alternative combinators: `|`
+- Alternative combinators: `|`, `|||`
+- `log` prints the parsing
 
 ## Mapping parser outputs ##
-We need `ToyForm` objects as the output of our parsers!
+- We need `ToyForm` objects as the output of our parsers! That's what `^^` is for.
+- Antipattern: manipulating the parsed string inside the transformation function.
 
 # Evaluation #
+Sorry no outline for this :(
