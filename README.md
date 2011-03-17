@@ -31,8 +31,11 @@ Language
 - `eq?`
 - `list?`, `char?`, `num?`
 
+# bindings #
+- There's just one namespace.
+- Scoping is lexical.
+
 # deficiencies #
 - Recursion is not supported. Since there are no loops either, ToyLisp is not Turing-complete.
-- There's just one, horrifying, dynamic scope. `eval` should be revised to take an `Environment` argument.
 
 

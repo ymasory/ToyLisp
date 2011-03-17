@@ -100,6 +100,12 @@ class ReaderTests extends FunSuite {
     }
   }
 
+  test("toyCall rejects rejects empty calls") {
+    pending
+    parseShouldFail(toyCall, "()")
+  }
+
+
   test("toyCall rejects singletons") {
     pending
     parseShouldFail(toyCall, "(foo)")

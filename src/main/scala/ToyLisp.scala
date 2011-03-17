@@ -2,7 +2,6 @@ package com.yuvimasory.toylisp
 
 import java.io.{ File, OutputStreamWriter }
 
-import scala.collection.{ mutable => m }
 import scala.util.parsing.combinator.{ RegexParsers, JavaTokenParsers }
 
 import jline.{ ConsoleReader, History }
@@ -57,7 +56,8 @@ object Reader extends RegexParsers with JavaTokenParsers {
     lBrack ~> (toyForm+) <~ rBrack ^^ { ToyList(_) }
 
   //parsers for lambdas
-  lazy val toyListOfSymbols: Parser[List[ToySymbol]] = lBrack ~> (toySymbol+) <~ rBrack
+  lazy val toyListOfSymbols: Parser[List[ToySymbol]] =
+    lBrack ~> (toySymbol+) <~ rBrack
   lazy val toyLambda: Parser[ToyLambda] =
     lParen ~> "lambda".r ~> toyListOfSymbols ~ toyCall <~ rParen ^^ {
       case lst ~ call => ToyLambda(lst, call)
@@ -80,45 +80,70 @@ case class ToySymbol(str: String) extends ToyForm
 case class ToyList(lst: List[ToyForm]) extends ToyForm
 sealed abstract class AbstractToyCall extends ToyForm
 case class ToyCall(lst: List[ToyForm]) extends AbstractToyCall
-case class ToyLambda(args: List[ToySymbol], body: ToyCall) extends AbstractToyCall
+case class ToyLambda(
+  args: List[ToySymbol],
+  body: ToyCall) extends AbstractToyCall
+
+case class SyntaxError(msg: String) extends RuntimeException(msg)
 /* END PARSER */
 
 /* BEGIN INTERPRETER */
 object Interpreter {
+  
+  //AKA "symbol table"
+  type Environment = Map[ToySymbol, ToyForm]
+  val EmptyEnvironment = Map.empty[ToySymbol, ToyForm]
 
-  def eval(form: ToyForm): ToyForm = {
-    null
-    // form match {
-    //   case ToyDo(stmts) => stmts.foldLeft(
-    //     emptyList.asInstanceOf[ToyForm]) { (_, form) =>
-    //     eval(form)
-    //   }
-    //   case ToyLambda(_, _) => form
-    //   case ToyChar(_) | ToyInt(_) | ToyList(_) => form
-    //   case symb: ToySymbol => lookupSymbol(symb)
-    //   case lst: ToyCall => functionApplication(lst)
-    // }
+  def eval(form: ToyForm, env: Environment): (ToyForm, Environment) = {
+    def lookup(symb: ToySymbol) =
+      env getOrElse (symb, throw UnboundSymbolError(symb.toString))
+
+    form match {
+      case ToyChar(_) | ToyInt(_) | ToyList(_) => (form, env)
+      case ToyLambda(_, _) => (form, env)
+      case symb: ToySymbol => (lookup(symb), env)
+      case lst: ToyCall => functionApplication(lst, env)
+    }
   }
 
-  // private val one = ToyInt(1)
-  // private val zero = ToyInt(0)
-  // private val emptyList = ToyList(Nil)
+  def functionApplication(toyCall: ToyCall, env: Environment):
+    (ToyForm, Environment) = {
+      def evale(form: ToyForm): ToyForm = eval(form, env)._1
 
-  // private def falsy(form: ToyForm): Boolean = {
-  //   form match {
-  //     case ToyCall(Nil) => true
-  //     case `zero` => true
-  //     case _ => false
-  //   }
-  // }
+      (toyCall: @unchecked) match {
+        case ToyCall(firstForm :: restForms) => firstForm match {
+          case ToySymbol("+") => (restForms map evale) match {
+            case List(ToyInt(a), ToyInt(b)) => (ToyInt(a + b), env)
+            case _ => throw TypeError("plus needs exactly two numbers")
+          }
+          case ToySymbol("opp") => (restForms map evale) match {
+            case List(ToyInt(a)) => (ToyInt(-a), env)
+            case _ => throw TypeError("opp needs one number")
+          }
+  //       case tl: ToyLambda => handleLambda(tl, restForms)
 
-  // private val environment = m.Map.empty[ToySymbol, ToyForm]
 
-  // private def lookupSymbol(symb: ToySymbol) = {
-  //   val form = environment getOrElse (symb,
-  //     throw UnboundSymbolError(symb.toString))
-  //   eval(form)
-  // }
+  //       case ToySymbol("set!") => restForms match {
+  //         case List(ToySymbol(v), form) => {
+  //           environment.update(ToySymbol(v), eval(form))
+  //           emptyList
+  //         }
+  //         case _ => throw SyntaxError("set needs a symbol and a form")
+  //       }
+
+  //       case userFunc => {
+  //         eval(userFunc) match {
+  //           case tl: ToyLambda => handleLambda(tl, restForms)
+  //           case _ => throw SyntaxError("first element of a function call" +
+  //             " must be the lambda keyword or result in a lambda")
+  //         }
+  //       }
+        
+
+          case _ => throw new RuntimeException("not implemented in PHASE talk")
+        }
+      }
+  }
 
   // private def handleLambda(lambda: ToyLambda, forms: List[ToyForm]) = {
   //   lambda match {
@@ -134,87 +159,10 @@ object Interpreter {
   //   }
   // }
 
-  // private def functionApplication(toyCall: ToyCall): ToyForm = {
-  //   toyCall match {
-  //     case ToyCall(firstForm :: restForms) => firstForm match {
-  //       case tl: ToyLambda => handleLambda(tl, restForms)
-  //       case ToySymbol("set!") => restForms match {
-  //         case List(ToySymbol(v), form) => {
-  //           environment.update(ToySymbol(v), eval(form))
-  //           emptyList
-  //         }
-  //         case _ => throw SyntaxError("set needs a symbol and a form")
-  //       }
-  //       case ToySymbol("list?") => (restForms map eval) match {
-  //         case List(ToyList(_)) => one
-  //         case _ => zero
-  //       }
-  //       case ToySymbol("char?") => (restForms map eval) match {
-  //         case List(ToyChar(_)) => one
-  //         case _ => zero
-  //       }
-  //       case ToySymbol("num?") => (restForms map eval) match {
-  //         case List(ToyInt(_)) => one
-  //         case _ => zero
-  //       }
-  //       case ToySymbol("eq?") => (restForms map eval) match {
-  //         case List(ToyInt(a), ToyInt(b)) => if (a == b) one else zero
-  //         case List(ToyChar(a), ToyChar(b)) => if (a == b) one else zero
-  //         case List(ToyList(a), ToyList(b)) => if (a == b) one else zero
-  //         case _ => zero
-  //       }
-  //       case ToySymbol("char>num") => (restForms map eval) match {
-  //         case List(ToyChar(c)) => ToyInt(c.toInt)
-  //         case _ => throw SyntaxError("char>num needs one char")
-  //       }
-  //       case ToySymbol("num>char") => (restForms map eval) match {
-  //         case List(ToyInt(n)) => ToyChar(n.toChar)
-  //         case _ => throw SyntaxError("num>char needs one number")
-  //       }
-  //       case ToySymbol("+") => (restForms map eval) match {
-  //         case List(ToyInt(a), ToyInt(b)) => ToyInt(a + b)
-  //         case _ => throw SyntaxError("plus needs two numbers")
-  //       }
-  //       case ToySymbol("opp") => (restForms map eval) match {
-  //         case List(ToyInt(a)) => ToyInt(-a)
-  //         case _ => throw SyntaxError("opp needs one number")
-  //       }
-  //       case ToySymbol("<=") => (restForms map eval) match {
-  //         case List(ToyInt(a), ToyInt(b)) => if (a <= b) one else zero
-  //         case _ => throw SyntaxError("plus needs two numbers")
-  //       }
-  //       case ToySymbol("cons") => (restForms map eval) match {
-  //         case List(a, ToyList(q)) => ToyList(eval(a) :: q)
-  //         case _ => throw SyntaxError("cons needs a form and a list")
-  //       }
-  //       case ToySymbol("head") => (restForms map eval) match {
-  //         case List(ToyList(h :: t)) => h
-  //         case _ => throw SyntaxError("head needs a non-empty quoted list")
-  //       }
-  //       case ToySymbol("tail") => (restForms map eval) match {
-  //         case List(ToyList(h :: t)) => ToyList(t)
-  //         case _ => throw SyntaxError("tail needs a non-empty quoted list")
-  //       }
-  //       case ToySymbol("if") => restForms match {
-  //         case List(cond, ift, iff) => eval(if (falsy(eval(cond))) ift
-  //         else iff)
-  //         case _ => throw SyntaxError("if requires three arguments")
-  //       }
-  //       case userFunc => {
-  //         eval(userFunc) match {
-  //           case tl: ToyLambda => handleLambda(tl, restForms)
-  //           case _ => throw SyntaxError("first element of a function call" +
-  //             " must be the lambda keyword or result in a lambda")
-  //         }
-  //       }
-  //     }
-  //     case _ => throw SyntaxError("use [] for empty list")
-  //   }
-  // }
 }
 
-case class UnboundSymbolError(msg: String) extends Exception(msg)
-case class SyntaxError(msg: String) extends Exception(msg)
+case class UnboundSymbolError(msg: String) extends RuntimeException(msg)
+case class TypeError(msg: String) extends RuntimeException(msg)
 /* END INTERPRETER */
 
 /* BEGIN MAIN */
@@ -260,7 +208,7 @@ object Main {
       Reader.read(programText) match {
         case Right(ToyList(forms)) => {
           for (form <- forms) {
-            val result = Interpreter eval form
+            val result = Interpreter eval (form, Interpreter.EmptyEnvironment)
             if (quiet == false)
               println("result = " + result)
           }
@@ -268,7 +216,8 @@ object Main {
         case Left(msg) => throw SyntaxError(msg)
       }
     } catch {
-      case ex => Console.err println (ex.getClass + ": " + ex.getMessage)
+      case ex =>
+        Console.err println (ex.getClass.getSimpleName + ": " + ex.getMessage)
     }
   }
 }
