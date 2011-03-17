@@ -65,16 +65,7 @@ class EvalTests extends FunSuite {
     }
   }
 
-  // test("lambda plustwo") {
-  //   val lambda = ToyLambda(
-  //     List(ToySymbol("x")),
-  //     ToyCall(List(
-  //       ToySymbol("+"),
-  //       ToySymbol("x"),
-  //       ToyInt(2)))) 
-  //   val ast = ToyCall(List(lambda, ToyInt(3)))
-  //   expect(ToyInt(5)) {
-  //     evale(ast)
-  //   }
-  // }
+  test("lambda plustwo") {
+    textTest("((lambda [x] (+ x 2)) 3)", ToyInt(5))
+  }
 }
