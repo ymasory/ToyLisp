@@ -68,4 +68,9 @@ class EvalTests extends FunSuite {
   test("lambda plustwo") {
     textTest("((lambda [x] (+ x 2)) 3)", ToyInt(5))
   }
+
+  test("PHASE example") {
+    pending
+    textTest(Common.phaseProgram, ToyInt(-5))
+  }
 }

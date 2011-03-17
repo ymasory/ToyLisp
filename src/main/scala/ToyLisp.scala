@@ -92,10 +92,23 @@ object Interpreter {
   
   //AKA "symbol table"
   type Environment = Map[ToySymbol, ToyForm]
-  val EmptyEnvironment = Map.empty[ToySymbol, ToyForm]
+  val EmptyEnvironment: Environment = Map.empty[ToySymbol, ToyForm]
 
   //the empty list is our "boring" unit value
   val EmptyList = ToyList(Nil)
+
+  // def eval(lst: ToyList): (ToyForm, Environment) = {
+  //   val res = lst match {
+  //     case ToyList(lst) => {
+  //       lst.foldLeft((EmptyEnvironment, EmptyList.asInstanceOf[ToyForm])) {
+  //         case ((lastVal: ToyForm, env: Environment), form: ToyForm) => {
+  //           eval(form, env).swap
+  //         }
+  //       }
+  //     }
+  //   }
+  //   res.swap
+  // }
 
   def eval(form: ToyForm, env: Environment): (ToyForm, Environment) = {
     def lookup(symb: ToySymbol) =
@@ -200,7 +213,7 @@ object Main {
     println("\nWelcome to Toy Lisp! Press Ctrl+D to exit.\n")
     while (true) {
       in.readLine() match {
-        case input: String => giveOutput(input)
+        case input: String => interpret(input)
         case _ => return println("okbye!")
       }
     }
@@ -210,14 +223,15 @@ object Main {
    * Interpret the programText, then if `quiet` is `false` prettily display
    * the output.
    */
-  private def giveOutput(programText: String, quiet: Boolean = false) {
+  private def interpret(programText: String, quiet: Boolean = false) {
     try {
       Reader.read(programText) match {
         case Right(ToyList(forms)) => {
+          var curEnv = Interpreter.EmptyEnvironment
           for (form <- forms) {
             val result = Interpreter eval (form, Interpreter.EmptyEnvironment)
             if (quiet == false)
-              println("result = " + result)
+              println("result = " + result._1)
           }
         }
         case Left(msg) => throw SyntaxError(msg)
