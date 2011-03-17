@@ -75,4 +75,22 @@ class ReaderTests extends FunSuite {
       parseAll(toyInt, "0").get
     }
   }
+
+  test("toyList accepts singleton") {
+    expect(ToyList(List(ToyInt(1)))) {
+      parseAll(toyList, "[1]").get
+    }
+  }
+
+  test("toyList accepts multiples") {
+    expect(ToyList(List(ToyInt(1), ToyInt(2)))) {
+      parseAll(toyList, "[1 2]").get
+    }
+  }
+
+  test("toyList accepts whitespace") {
+    expect(ToyList(List(ToyInt(1)))) {
+      parseAll(toyList, "[ 1 ]").get
+    }
+  }
 }

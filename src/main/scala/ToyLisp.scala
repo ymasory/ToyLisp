@@ -59,13 +59,10 @@ object Reader extends RegexParsers with JavaTokenParsers {
 
   //list types parser
   lazy val toyCall: Parser[ToyCall] =
-    lParen ~> (((whiteSpace*) ~> toyForm <~ (whiteSpace*))*) <~ rParen ^^ {
-      ToyCall(_)
-    }
+    lParen ~> (toyForm*) <~ rParen ^^ { ToyCall(_) }
+
   lazy val toyList: Parser[ToyList] =
-    lBrack ~> (((whiteSpace*) ~> toyForm <~ (whiteSpace*))*) <~ rBrack ^^ {
-      ToyList(_)
-    }
+    lBrack ~> (toyForm*) <~ rBrack ^^ { ToyList(_) }
 
   //"primitive types", list types, and sugar types together make all the forms
   lazy val toyForm: Parser[ToyForm] =
