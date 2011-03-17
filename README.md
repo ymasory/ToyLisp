@@ -27,7 +27,7 @@ Language
 # built-in function #
 - `cons`, `head`, `tail`
 - `num>char`, `char>num`
-- `<=`, `+`, `floor`, `opp`
+- `<=`, `+`, `opp`
 - `eq?`
 - `list?`, `char?`, `num?`
 

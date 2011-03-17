@@ -39,8 +39,8 @@ object Reader extends RegexParsers with JavaTokenParsers {
     """[a-zA-Z_@~%!=#<>\+\*\?\^\&]+""".r ^^ { ToySymbol(_) }
   lazy val toyChar: Parser[ToyChar] =
     quote ~> ".".r <~ quote ^^ { s => ToyChar(s.head) }
-  lazy val toyNumber: Parser[ToyInt] = floatingPointNumber ^^ { str =>
-    ToyInt(str.toDouble)
+  lazy val toyInt: Parser[ToyInt] = wholeNumber ^^ { str =>
+    ToyInt(str.toInt)
   }
 
   /**
@@ -64,7 +64,7 @@ object Reader extends RegexParsers with JavaTokenParsers {
 
   //"primitive types", list types, and sugar types together make all the forms
   lazy val toyForm: Parser[ToyForm] =
-    toySymbol | toyNumber | toyChar | toyCall | toyList | toyString
+    toySymbol | toyInt | toyChar | toyCall | toyList | toyString
 
   def isSymbol(form: ToyForm): Boolean = {
     form match {
@@ -99,7 +99,7 @@ sealed abstract class ToyForm
 case class ToyDo(stmts: List[ToyForm]) extends ToyForm
 case class ToyLambda(args: List[ToySymbol], body: ToyForm) extends ToyForm
 case class ToyChar(chr: Char) extends ToyForm
-case class ToyInt(dub: Double) extends ToyForm
+case class ToyInt(i: Int) extends ToyForm
 case class ToySymbol(str: String) extends ToyForm
 case class ToyCall(lst: List[ToyForm]) extends ToyForm
 case class ToyList(lst: List[ToyForm]) extends ToyForm
@@ -121,8 +121,8 @@ object Interpreter {
     }
   }
 
-  private val one = ToyInt(1.0)
-  private val zero = ToyInt(0.0)
+  private val one = ToyInt(1)
+  private val zero = ToyInt(0)
   private val emptyList = ToyList(Nil)
 
   private def falsy(form: ToyForm): Boolean = {
@@ -203,10 +203,6 @@ object Interpreter {
         case ToySymbol("<=") => (restForms map eval) match {
           case List(ToyInt(a), ToyInt(b)) => if (a <= b) one else zero
           case _ => throw SyntaxError("plus needs two numbers")
-        }
-        case ToySymbol("floor") => (restForms map eval) match {
-          case List(ToyInt(a)) => ToyInt(java.lang.Math.floor(a))
-          case _ => throw SyntaxError("floor requires one argument")
         }
         case ToySymbol("cons") => (restForms map eval) match {
           case List(a, ToyList(q)) => ToyList(eval(a) :: q)
