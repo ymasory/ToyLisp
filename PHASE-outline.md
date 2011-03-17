@@ -50,7 +50,7 @@ We want to interpret this program:
 
 A *value* is an expression that cannot be evaluated any further.
 
-The parser (lisp-speak: the `reader`) does 1-3. The evaluator (lisp-speak: the `eval` function) does 4.
+The parser (lisp-speak: the reader) does 1-3. The evaluator (lisp-speak: the `eval` function) does 4.
 
 ## Scala overview ##
 - `main` is a procedure that will read line after line of input from the user, interactively.
