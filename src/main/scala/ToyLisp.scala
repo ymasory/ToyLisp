@@ -76,13 +76,13 @@ object Reader extends RegexParsers with JavaTokenParsers {
 sealed abstract class ToyForm
 case class ToyChar(chr: Char) extends ToyForm
 case class ToyInt(i: Int) extends ToyForm
-case class ToySymbol(str: String) extends ToyForm
 case class ToyList(lst: List[ToyForm]) extends ToyForm
+case class ToySymbol(str: String) extends ToyForm
 sealed abstract class AbstractToyCall extends ToyForm
 case class ToyCall(lst: List[ToyForm]) extends AbstractToyCall
 case class ToyLambda(
   args: List[ToySymbol],
-  body: ToyCall) extends AbstractToyCall
+  body: ToyCall) extends AbstractToyCall //the body really should be any ToyForm
 
 case class SyntaxError(msg: String) extends RuntimeException(msg)
 /* END PARSER */
@@ -102,10 +102,12 @@ object Interpreter {
       env getOrElse (symb, throw UnboundSymbolError(symb.toString))
 
     form match {
-      case ToyChar(_) | ToyInt(_) | ToyList(_) => (form, env)
-      case ToyLambda(_, _) => (form, env)
+      case ToyChar(_) | ToyInt(_) => (form, env)
+      case ToyList(lst) =>
+        (ToyList(lst.map(eval(_, env)).unzip._1), env)
+      case ToyLambda(_, _) => (form, env) //evaluation of lambda body is delayed
       case symb: ToySymbol => (lookup(symb), env)
-      case lst: ToyCall => functionApplication(lst, env)
+      case call: ToyCall => functionApplication(call, env)
     }
   }
 
@@ -114,6 +116,7 @@ object Interpreter {
       def evale(form: ToyForm): ToyForm = eval(form, env)._1
 
       (toyCall: @unchecked) match {
+
         case ToyCall(firstForm :: restForms) => firstForm match {
           case ToySymbol("+") => (restForms map evale) match {
             case List(ToyInt(a), ToyInt(b)) => (ToyInt(a + b), env)
@@ -128,24 +131,26 @@ object Interpreter {
               (EmptyList, env + (s -> evale(form)))
             case _ => throw TypeError("set needs a symbol and a form")
           }
-        case tl: ToyLambda => handleLambda(tl, restForms, env)
+          case tl: ToyLambda => lambdaApplication(tl, restForms, env)
 
-  //       case userFunc => {
-  //         eval(userFunc) match {
-  //           case tl: ToyLambda => handleLambda(tl, restForms)
-  //           case _ => throw SyntaxError("first element of a function call" +
-  //             " must be the lambda keyword or result in a lambda")
-  //         }
-  //       }
-
-          case _ => throw new RuntimeException("not implemented in PHASE talk")
+          case form => {
+            evale(form) match {
+              case tl: ToyLambda => lambdaApplication(tl, restForms, env)
+              case _ => {
+                throw TypeError(
+                  "first element of a function call" +
+                  " must result in a lambda or be a built-in function")
+              }
+            }
+          }
         }
       }
-  }
+    }
 
-  private def handleLambda(lambda: ToyLambda,
-                           forms: List[ToyForm],
-                           env: Environment): (ToyForm, Environment) = {
+
+  private def lambdaApplication(lambda: ToyLambda,
+                                forms: List[ToyForm],
+                                env: Environment): (ToyForm, Environment) = {
       lambda match {
         case ToyLambda(args, body) => {
           if (args.length == forms.length) {
