@@ -1,9 +1,8 @@
 package com.yuvimasory.toylisp
 
-import java.io.{ BufferedReader, File, InputStreamReader, OutputStreamWriter }
+import java.io.{ File, OutputStreamWriter }
 
 import scala.collection.{ mutable => m }
-import scala.io.Source
 import scala.util.parsing.combinator.{ RegexParsers, JavaTokenParsers }
 
 import jline.{ ConsoleReader, History }
