@@ -2,6 +2,8 @@ package com.yuvimasory.toylisp
 
 import org.scalatest.FunSuite
 
+//To reduce fragility these tests should really be on program text,
+//not on ASTs.
 class EvalTests extends FunSuite {
   import Interpreter.{EmptyList, EmptyEnvironment, eval}
 
@@ -69,6 +71,19 @@ class EvalTests extends FunSuite {
   test("assignment requires a symbol and a form") {
     val ast = ToyCall(List(ToySymbol("set!"), ToyInt(1), ToyInt(1)))
     intercept[TypeError] {
+      evale(ast)
+    }
+  }
+
+  test("lambda plustwo") {
+    val lambda = ToyLambda(
+      List(ToySymbol("x")),
+      ToyCall(List(
+        ToySymbol("+"),
+        ToySymbol("x"),
+        ToyInt(2)))) 
+    val ast = ToyCall(List(lambda, ToyInt(3)))
+    expect(ToyInt(5)) {
       evale(ast)
     }
   }

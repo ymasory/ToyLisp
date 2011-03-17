@@ -149,8 +149,9 @@ object Interpreter {
       lambda match {
         case ToyLambda(args, body) => {
           if (args.length == forms.length) {
-            val envWithParams = (0 until args.length).foldLeft (EmptyEnvironment) {
-              case (env, i) => env + (args(i) -> forms(i))
+            val envWithParams = (0 until args.length).foldLeft(EmptyEnvironment)
+            {
+                case (env, i) => env + (args(i) -> forms(i))
             }
             eval(body, envWithParams)
           }
