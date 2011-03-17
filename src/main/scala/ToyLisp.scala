@@ -94,6 +94,9 @@ object Interpreter {
   type Environment = Map[ToySymbol, ToyForm]
   val EmptyEnvironment = Map.empty[ToySymbol, ToyForm]
 
+  //the empty list is our "boring" unit value
+  val EmptyList = ToyList(Nil)
+
   def eval(form: ToyForm, env: Environment): (ToyForm, Environment) = {
     def lookup(symb: ToySymbol) =
       env getOrElse (symb, throw UnboundSymbolError(symb.toString))
@@ -120,16 +123,11 @@ object Interpreter {
             case List(ToyInt(a)) => (ToyInt(-a), env)
             case _ => throw TypeError("opp needs one number")
           }
+          case ToySymbol("set!") => restForms match {
+            case List(s: ToySymbol, form) => (EmptyList, env + (s -> form))
+            case _ => throw TypeError("set needs a symbol and a form")
+          }
   //       case tl: ToyLambda => handleLambda(tl, restForms)
-
-
-  //       case ToySymbol("set!") => restForms match {
-  //         case List(ToySymbol(v), form) => {
-  //           environment.update(ToySymbol(v), eval(form))
-  //           emptyList
-  //         }
-  //         case _ => throw SyntaxError("set needs a symbol and a form")
-  //       }
 
   //       case userFunc => {
   //         eval(userFunc) match {
@@ -138,7 +136,6 @@ object Interpreter {
   //             " must be the lambda keyword or result in a lambda")
   //         }
   //       }
-        
 
           case _ => throw new RuntimeException("not implemented in PHASE talk")
         }

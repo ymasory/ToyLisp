@@ -3,9 +3,9 @@ package com.yuvimasory.toylisp
 import org.scalatest.FunSuite
 
 class EvalTests extends FunSuite {
+  import Interpreter.{EmptyList, EmptyEnvironment, eval}
 
-  def evale(form: ToyForm): ToyForm =
-    Interpreter.eval(form, Interpreter.EmptyEnvironment)._1
+  def evale(form: ToyForm): ToyForm = eval(form, EmptyEnvironment)._1
 
 
   test("eval int") {
@@ -59,4 +59,17 @@ class EvalTests extends FunSuite {
     }
   }
 
+  test("assignment") {
+    val ast = ToyCall(List(ToySymbol("set!"), ToySymbol("x"), ToyInt(1)))
+    expect((EmptyList, Map(ToySymbol("x") -> ToyInt(1)))) {
+      eval(ast, EmptyEnvironment)
+    }
+  }
+
+  test("assignment requires a symbol and a form") {
+    val ast = ToyCall(List(ToySymbol("set!"), ToyInt(1), ToyInt(1)))
+    intercept[TypeError] {
+      evale(ast)
+    }
+  }
 }
