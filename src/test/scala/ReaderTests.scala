@@ -134,4 +134,27 @@ class ReaderTests extends FunSuite {
   test("toyListOfSymbols rejects non-symbols") {
     parseShouldFail(toyListOfSymbols, "[(+ 3 4)]")
   }
+
+  test("phase sample program") {
+    val expected = ToyList(List(
+      ToyCall(List(
+        ToySymbol("set!"),
+        ToySymbol("minus"),
+        ToyLambda(
+          List(ToySymbol("x"), ToySymbol("y")),
+          ToyCall(List(
+            ToySymbol("+"),
+            ToySymbol("x"),
+            ToyCall(List(ToySymbol("opp"), ToySymbol("y")))))))),
+      
+      ToyCall(List(
+        ToySymbol("minus"),
+        ToyInt(10),
+        ToyInt(15)))
+    ))
+
+    expect(expected) {
+      parseAll(toyProgram, Common.phaseProgram).get
+    }
+  }
 }

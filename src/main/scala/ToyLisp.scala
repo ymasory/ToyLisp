@@ -17,10 +17,6 @@ object Reader extends RegexParsers with JavaTokenParsers {
     }
   }
 
-  //in the tradition of Lisp, a program is a list of forms
-  lazy val toyProgram: Parser[ToyList] =
-    (((whiteSpace*) ~> toyForm <~ (whiteSpace*))*) ^^ { ToyList(_) }
-
   lazy val QuoteStr: String = "'"
 
   //handy string/regex parsers
@@ -68,8 +64,12 @@ object Reader extends RegexParsers with JavaTokenParsers {
     }
 
   //"primitive types", list types, and sugar types together make all the forms
+  //notice that toyLambda MUST come earlier in the chain than toyCall
   lazy val toyForm: Parser[ToyForm] =
-    toySymbol | toyInt | toyChar | toyCall | toyList | toyString | toyLambda
+    toyChar | toyInt | toyString | toySymbol | toyList |  toyLambda | toyCall
+
+  //in the tradition of Lisp, a program is a list of forms
+  lazy val toyProgram: Parser[ToyList] = (toyForm*) ^^ { ToyList(_) }
 }
 
 // Algebraic data types for target language terms
@@ -81,8 +81,6 @@ case class ToyList(lst: List[ToyForm]) extends ToyForm
 sealed abstract class AbstractToyCall extends ToyForm
 case class ToyCall(lst: List[ToyForm]) extends AbstractToyCall
 case class ToyLambda(args: List[ToySymbol], body: ToyCall) extends AbstractToyCall
-
-
 /* END PARSER */
 
 /* BEGIN INTERPRETER */
