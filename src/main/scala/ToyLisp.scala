@@ -2,25 +2,25 @@ package com.yuvimasory.toylisp
 
 import java.io.{ BufferedReader, File, InputStreamReader, OutputStreamWriter }
 
-import scala.io.Source
-import scala.util.parsing.combinator.{RegexParsers, JavaTokenParsers}
 import scala.collection.{ mutable => m }
+import scala.io.Source
+import scala.util.parsing.combinator.{ RegexParsers, JavaTokenParsers }
 
 import jline.{ ConsoleReader, History }
 
 /* BEGIN MAIN */
 object Main {
 
+  //Use JLine's ConsoleReader instead of Console.in, just so we can
+  // hit backspace in interactive mode, have command history, etc.
   val in = {
     val consoleReader = new ConsoleReader(System.in,
-                                          new OutputStreamWriter(System.out))
+      new OutputStreamWriter(System.out))
     consoleReader setHistory (new History(new File(".toyhistory")))
     consoleReader setUseHistory true
     consoleReader setDefaultPrompt ">> "
     consoleReader
   }
-
-  val interpreter = new Interpreter()
 
   def main(args: Array[String]) {
     val stdlib = UrlReader resource2String "/stdlib.lis'"
@@ -49,7 +49,7 @@ object Main {
       Reader.read(programText) match {
         case Right(ToyList(forms)) => {
           for (form <- forms) {
-            val result = interpreter interpret form
+            val result = Interpreter interpret form
             if (quiet == false)
               println(simpleClass(result) + " = " + result)
           }
@@ -63,22 +63,22 @@ object Main {
 
   private def simpleClass(arg: AnyRef): String =
     arg.getClass.toString.split("\\s+")(1).split("\\.").last
-}
 
-object UrlReader {
+  object UrlReader {
 
-  def resource2String(resource: String): String = {
-    val url = getClass getResource resource
-    val in = new BufferedReader(new InputStreamReader(url.openStream()))
-    var buff = new StringBuffer      
-    var inputLine: String = in readLine()
-    while (inputLine != null) {
-      buff append inputLine 
-      System.out.println(inputLine)
-      inputLine = in readLine()
-    }    
-    in close()
-    buff toString
+    def resource2String(resource: String): String = {
+      val url = getClass getResource resource
+      val in = new BufferedReader(new InputStreamReader(url.openStream()))
+      var buff = new StringBuffer
+      var inputLine: String = in readLine ()
+      while (inputLine != null) {
+        buff append inputLine
+        System.out.println(inputLine)
+        inputLine = in readLine ()
+      }
+      in close ()
+      buff toString
+    }
   }
 }
 /* END MAIN */
@@ -86,9 +86,8 @@ object UrlReader {
 /* BEGIN PARSER */
 object Reader {
 
-
   def read(programText: String): Either[String, ToyList] = {
-    import ToyParsers.{toyProgram, parseAll, NoSuccess, Success}
+    import ToyParsers.{ toyProgram, parseAll, NoSuccess, Success }
     parseAll(toyProgram, programText) match {
       case Success(form, _) => Right(recognizeSpecialForms(form))
       case NoSuccess(msg, _) => Left(msg)
@@ -99,7 +98,7 @@ object Reader {
 
     //in the tradition of Lisp, a program is a list of forms
     lazy val toyProgram: Parser[ToyList] =
-      (((ws*) ~> toyForm <~ (ws*))*) ^^ {ToyList(_)}
+      (((ws*) ~> toyForm <~ (ws*))*) ^^ { ToyList(_) }
 
     //we will handle whitepsace ourselves
     override val skipWhitespace = false
@@ -111,21 +110,21 @@ object Reader {
     lazy val rParen: Parser[String] = ")"
     lazy val lBrack: Parser[String] = "["
     lazy val rBrack: Parser[String] = "]"
-    lazy val quote : Parser[String] = quoteStr
-    lazy val ws    : Parser[String] = """\s+""".r
+    lazy val quote: Parser[String] = quoteStr
+    lazy val ws: Parser[String] = """\s+""".r
 
     //"primitive types" parsers
     lazy val toySymbol: Parser[ToySymbol] =
-      """[a-zA-Z_@~%!=#<>\+\*\?\^\&]+""".r ^^ {ToySymbol(_)}
-    lazy val toyChar  : Parser[ToyChar]   =
-      quote ~> "[^.]".r <~ quote ^^ {s => ToyChar(s charAt 0)}
-    lazy val toyNumber: Parser[ToyNumber] = floatingPointNumber ^^ {
-      str => ToyNumber(str.toDouble)
+      """[a-zA-Z_@~%!=#<>\+\*\?\^\&]+""".r ^^ { ToySymbol(_) }
+    lazy val toyChar: Parser[ToyChar] =
+      quote ~> "[^.]".r <~ quote ^^ { s => ToyChar(s charAt 0) }
+    lazy val toyNumber: Parser[ToyNumber] = floatingPointNumber ^^ { str =>
+      ToyNumber(str.toDouble)
     }
 
     //syntactic sugar parsers
-    lazy val toyString: Parser[ToyCall] = stringLiteral ^^ {
-      str => {
+    lazy val toyString: Parser[ToyCall] = stringLiteral ^^ { str =>
+      {
         val chars =
           str.substring(1, str.length - 1).toList.map(quoteStr + _ + quoteStr)
         val sExpr = "(" + chars.mkString(" ") + ")"
@@ -144,7 +143,7 @@ object Reader {
       toySymbol | toyNumber | toyChar | toyCall | toyList | toyString
   }
 
-  def isSymbol(form : ToyForm) : Boolean = {
+  def isSymbol(form: ToyForm): Boolean = {
     form match {
       case ToySymbol(_) => true
       case _ => false
@@ -156,15 +155,15 @@ object Reader {
       case ToyLambda(_, _) | ToyDo(_) => form // eliminate, unreachable
       case ToyList(q) => ToyList(q map recognizeSpecialForms)
       case ToyCall(List(ToySymbol("lambda"),
-                        ToyCall(args),
-                        body)) =>
-         if (args.forall (a => isSymbol(a))) {
-           ToyLambda(  (for (ToySymbol(a) <- args) yield ToySymbol(a)).toList,
-                     recognizeSpecialForms(body))
-         } else {
-           throw SyntaxError("lambda requires only symbol names in arg list")
-         }
-      case ToyCall( ToySymbol("do") :: stmts ) => ToyDo(stmts)
+        ToyCall(args),
+        body)) =>
+        if (args.forall(a => isSymbol(a))) {
+          ToyLambda((for (ToySymbol(a) <- args) yield ToySymbol(a)).toList,
+            recognizeSpecialForms(body))
+        } else {
+          throw SyntaxError("lambda requires only symbol names in arg list")
+        }
+      case ToyCall(ToySymbol("do") :: stmts) => ToyDo(stmts)
       case ToyChar(_) | ToyNumber(_) | ToySymbol(_) => form
       case ToyCall(forms) => ToyCall(forms map recognizeSpecialForms)
     }
@@ -172,40 +171,41 @@ object Reader {
   }
 }
 
+// Algebraic data types for target language terms
 sealed abstract class ToyForm
-case class ToyDo(stmts : List[ToyForm]) extends ToyForm {
+case class ToyDo(stmts: List[ToyForm]) extends ToyForm {
   override val toString = "(do " + stmts.mkString(" ") + ")"
 }
-case class ToyLambda(args : List[ToySymbol], body: ToyForm) extends ToyForm {
+case class ToyLambda(args: List[ToySymbol], body: ToyForm) extends ToyForm {
   override val toString =
     "<lambda " + args.toString + " -> " + body.toString + ">"
 }
-case class ToyChar  (chr: Char)          extends ToyForm {
+case class ToyChar(chr: Char) extends ToyForm {
   override val toString = "'" + chr.toString + "'"
 }
-case class ToyNumber(dub: Double)        extends ToyForm {
+case class ToyNumber(dub: Double) extends ToyForm {
   override val toString = dub.toString
 }
-case class ToySymbol(str: String)        extends ToyForm {
+case class ToySymbol(str: String) extends ToyForm {
   override val toString = str
 }
-case class ToyCall  (lst: List[ToyForm]) extends ToyForm {
+case class ToyCall(lst: List[ToyForm]) extends ToyForm {
   override val toString = "(" + lst.mkString(" ") + ")"
 }
-case class ToyList (lst: List[ToyForm]) extends ToyForm {
+case class ToyList(lst: List[ToyForm]) extends ToyForm {
   override val toString = "[" + lst.mkString(" ") + "]"
 }
 /* END PARSER */
 
 /* BEGIN INTERPRETER */
-class Interpreter {
+object Interpreter {
 
   def interpret(form: ToyForm): ToyForm = {
     form match {
       case ToyDo(stmts) => stmts.foldLeft(
         emptyList.asInstanceOf[ToyForm]) { (_, form) =>
           interpret(form)
-      }
+        }
       case ToyLambda(_, _) => form
       case ToyChar(_) | ToyNumber(_) | ToyList(_) => form
       case symb: ToySymbol => lookupSymbol(symb)
@@ -229,7 +229,7 @@ class Interpreter {
 
   private def lookupSymbol(symb: ToySymbol) = {
     val form = environment getOrElse (symb,
-                                      throw UnboundSymbolError(symb.toString))
+      throw UnboundSymbolError(symb.toString))
     interpret(form)
   }
 
@@ -241,8 +241,7 @@ class Interpreter {
             environment.update(args(i), interpret(forms(i)))
           }
           interpret(body)
-        }
-        else
+        } else
           throw SyntaxError("tried to call a lambda with wrong number of args")
       }
     }
@@ -315,7 +314,7 @@ class Interpreter {
         }
         case ToySymbol("if") => restForms match {
           case List(cond, ift, iff) => interpret(if (falsy(interpret(cond))) ift
-                                                 else iff)
+          else iff)
           case _ => throw SyntaxError("if requires three arguments")
         }
         case userFunc => {
