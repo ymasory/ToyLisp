@@ -5,7 +5,10 @@ class Project(info: ProjectInfo) extends DefaultProject(info) with ProguardProje
   //project name
   override val artifactID = "ToyLisp"
 
-  //managed dependencies from externa repositories
+  //managed dependencies from built-in repositories
+  val scalatest = "org.scalatest" % "scalatest" % "1.3" % "test"
+
+  //managed dependencies from external repositories
   val jline = "jline" % "jline" % "0.9.94"
   val sourceforgeJline = "http://jline.sourceforge.net/m2repo"
 
