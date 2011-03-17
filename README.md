@@ -32,10 +32,7 @@ Language
 - `list?`, `char?`, `num?`
 
 # scope #
-- All variables are lexically scoped.
+- All names are lexically scoped.
 - All names live in the same namespace.
-
-# standard library #
-The standard library provides `-`, `*`, `**`.
 
 
