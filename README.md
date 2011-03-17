@@ -31,8 +31,8 @@ Language
 - `eq?`
 - `list?`, `char?`, `num?`
 
-# scope #
-- All names are lexically scoped.
-- All names live in the same namespace.
+# deficiencies #
+- Recursion is not supported. Since there are no loops either, ToyLisp is not Turing-complete.
+- There's just one, horrifying, dynamic scope. `eval` should be revised to take an `Environment` argument.
 
 

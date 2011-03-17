@@ -93,4 +93,39 @@ class ReaderTests extends FunSuite {
       parseAll(toyList, "[ 1 ]").get
     }
   }
+
+  test("toyCall rejects singletons") {
+    pending
+    parseShouldFail(toyCall, "(foo)")
+  }
+
+  test("toyCall accepts multiples") {
+    expect(ToyCall(List(ToySymbol("foo"), ToyInt(2)))) {
+      parseAll(toyCall, "(foo 2)").get
+    }
+  }
+
+  test("toyCall accepts whitespace") {
+    expect(ToyCall(List(ToySymbol("foo"), ToyInt(1)))) {
+      parseAll(toyCall, "( foo  1 )").get
+    }
+  }
+
+  test("empty string is not a ToyForm") {
+    parseShouldFail(toyForm, "")
+  }
+
+  test("empty space is not a ToyForm") {
+    parseShouldFail(toyForm, " ")
+  }
+
+  test("toyListOfSymbols accepts") {
+    expect(ToyList(List(ToySymbol("foo")))) {
+      parseAll(toyListOfSymbols, "[foo]").get
+    }
+  }
+
+  test("toyListOfSymbols rejects non-symbols") {
+    parseShouldFail(toyListOfSymbols, "[(+ 3 4)]")
+  }
 }
