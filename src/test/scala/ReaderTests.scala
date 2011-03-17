@@ -45,6 +45,7 @@ class ReaderTests extends FunSuite {
   }
 
   test("toyChar accepts space character") {
+    pending
     expect(ToyChar(' ')) {
       parseAll(toyChar, "' '").get
     }
@@ -55,5 +56,23 @@ class ReaderTests extends FunSuite {
   }
   test("toyChar knows the empty character doesn't exist") {
     parseShouldFail(toyChar, "''")
+  }
+
+  test("toyInt accepts positive numbers") {
+    expect(ToyInt(51)) {
+      parseAll(toyInt, "51").get
+    }
+  }
+
+  test("toyInt accepts negative numbers") {
+    expect(ToyInt(-10)) {
+      parseAll(toyInt, "-10").get
+    }
+  }
+
+  test("toyInt accepts zero") {
+    expect(ToyInt(0)) {
+      parseAll(toyInt, "0").get
+    }
   }
 }

@@ -44,7 +44,8 @@ object Reader extends RegexParsers with JavaTokenParsers {
   }
 
   /**
-   * ToyLisp has no string "type", just string ``syntax`` for lists of characters.
+   * ToyLisp has no string "type", just string ``syntax`` for lists of
+   * characters.
    * So we will rewrite string literals into lists of characters and parse that.
    */
   lazy val toyString: Parser[ToyCall] = stringLiteral ^^ { str =>
@@ -58,9 +59,13 @@ object Reader extends RegexParsers with JavaTokenParsers {
 
   //list types parser
   lazy val toyCall: Parser[ToyCall] =
-    lParen ~> (((whiteSpace*) ~> toyForm <~ (whiteSpace*))*) <~ rParen ^^ { ToyCall(_) }
+    lParen ~> (((whiteSpace*) ~> toyForm <~ (whiteSpace*))*) <~ rParen ^^ {
+      ToyCall(_)
+    }
   lazy val toyList: Parser[ToyList] =
-    lBrack ~> (((whiteSpace*) ~> toyForm <~ (whiteSpace*))*) <~ rBrack ^^ { ToyList(_) }
+    lBrack ~> (((whiteSpace*) ~> toyForm <~ (whiteSpace*))*) <~ rBrack ^^ {
+      ToyList(_)
+    }
 
   //"primitive types", list types, and sugar types together make all the forms
   lazy val toyForm: Parser[ToyForm] =
@@ -224,8 +229,8 @@ object Interpreter {
         case userFunc => {
           eval(userFunc) match {
             case tl: ToyLambda => handleLambda(tl, restForms)
-            case _ => throw SyntaxError("first element of a function call must" +
-              " be the lambda keyword or result in a lambda")
+            case _ => throw SyntaxError("first element of a function call" +
+              " must be the lambda keyword or result in a lambda")
           }
         }
       }
