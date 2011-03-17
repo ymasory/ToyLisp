@@ -16,7 +16,7 @@ Language
 - `[foo]`  (list)
 - `"foo"`  (string (list of characters))
 - `'c'`    (character)
-- `3.14`   (number)
+- `3`      (integer)
 
 # special forms #
 - `set!`   (assignment)

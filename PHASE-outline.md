@@ -8,11 +8,10 @@
 - https://github.com/ymasory/ToyLisp/README.md (language handout)
 - https://github.com/ymasory/ToyLisp/PHASE-outline.md (talk outline handout)
 
-## My goal ##
+## My goals ##
 - **Break the barrier!** *language user -> language tinkerer*
 - Give an intro to the parser combinators API.
 - Give an intro to evaluation.
-- Demo a common workflow.
 
 ## Audience background ##
 - Who is comfortable with basic regular expressions?
@@ -26,7 +25,7 @@
 - Lisp is easy to evaluate.
 - I'm not a Lisper.
 
-## What is Lisp anyway? ##
+## What makes a Lisp? ##
 Adapting from [Paul Graham](http://www.paulgraham.com/icad.html):
 
 1. fully parenthesized prefix notation
@@ -42,36 +41,22 @@ Adapting from [Paul Graham](http://www.paulgraham.com/icad.html):
 
 ToyLisp supports supports 1-7.
 
-# Setup #
-## IDEs ##
-- Emacs + scala-mode + sbt (+ ENSIME). I think this is the "premier" environment.
-- IntelliJ Idea with Scala plugin. Has some fans. Scala plugin is first-party. Integration with sbt is possible.
-- Eclipse with Scala plugin. Not worth using, but may be after Scala v2.9.
-- Netbeans with Scala plugin. Not worth using.
-- I don't know about other text editors (vim, TextMage, etc)
+## ToyLisp ##
 
-## My workflow ##
-- Make GitHub project.
-- Make sbt project.
-- Add other sbt tweaks.
-- Add Proguard to sbt.
-- Make ENSIME project.
-- Add `Main` object.
-- Add a test class.
 
-# Interpreters #
+# Overview #
+## Phases of interpretation ##
 1. Sequence of characters -> tokens. (*lexing*).
 2. Sequence of tokens -> parse trees. (*parsing*).
 3. Parse trees -> abstract syntax trees (AST).
-4. AST -> intermediate representation (IR).
-5. IR-1 -> ... -> IR-n.
-6. Final IR -> value. (evaluation).
+6. AST -> value. (evaluation).
 
-
-# Parsing #
-## Overview of Parser ##
+## Type signatures of phases ##
 - Main runs stdlib, then runs file or goes into interactive mode.
 - Reader should be of type `String -> ToyList`.
 - Eval should be of type `(ToyList, Environment) -> ToyForm`.
+
+
+# Parsing #
 
 # Evaluation #
