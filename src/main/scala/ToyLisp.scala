@@ -97,19 +97,6 @@ object Evaluator {
   //the empty list is our "boring" unit value
   val EmptyList = ToyList(Nil)
 
-  // def eval(lst: ToyList): (ToyForm, Environment) = {
-  //   val res = lst match {
-  //     case ToyList(lst) => {
-  //       lst.foldLeft((EmptyEnvironment, EmptyList.asInstanceOf[ToyForm])) {
-  //         case ((lastVal: ToyForm, env: Environment), form: ToyForm) => {
-  //           eval(form, env).swap
-  //         }
-  //       }
-  //     }
-  //   }
-  //   res.swap
-  // }
-
   def eval(form: ToyForm, env: Environment): (ToyForm, Environment) = {
     def lookup(symb: ToySymbol) =
       env getOrElse (symb, throw UnboundSymbolError(symb.toString))
