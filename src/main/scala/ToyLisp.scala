@@ -114,8 +114,8 @@ object Interpreter {
     form match {
       case ToyDo(stmts) => stmts.foldLeft(
         emptyList.asInstanceOf[ToyForm]) { (_, form) =>
-          eval(form)
-        }
+        eval(form)
+      }
       case ToyLambda(_, _) => form
       case ToyChar(_) | ToyInt(_) | ToyList(_) => form
       case symb: ToySymbol => lookupSymbol(symb)
@@ -261,15 +261,7 @@ object Main {
    * or go into interactive mode if no file is provided.
    */
   def main(args: Array[String]) {
-    val stdlib = ResourceReader resource2String "/stdlib.lis'"
-    println("stdlib: " + stdlib)
-    if (args.length > 0) runFile(args(0))
-    else runInteractive()
-  }
-
-  def runFile(path: String, quiet: Boolean = false) {
-    val programText = Source.fromFile(path).mkString
-    giveOutput(programText, quiet)
+    runInteractive()
   }
 
   def runInteractive() {
@@ -303,28 +295,11 @@ object Main {
     }
   }
 
-  /** Convert a fully qualified class name into a bare class name. */
+  /**
+   * Create a simple display of the arg's class name
+   * For example, if the arg is "s" the output should be "String".
+   */
   private def simpleClass(arg: AnyRef): String =
     arg.getClass.toString.split("\\s+")(1).split("\\.").last
-
-  object ResourceReader {
-
-    /**
-     * Dump the contents of the resource with the provided name into a `String`.
-     */
-    def resource2String(resource: String): String = {
-      val url = getClass getResource resource
-      val in = new BufferedReader(new InputStreamReader(url.openStream()))
-      var buff = new StringBuffer
-      var inputLine: String = in readLine ()
-      while (inputLine != null) {
-        buff append inputLine
-        System.out.println(inputLine)
-        inputLine = in readLine ()
-      }
-      in close ()
-      buff toString
-    }
-  }
 }
 /* END MAIN */
