@@ -9,64 +9,60 @@ import scala.util.parsing.combinator.{ RegexParsers, JavaTokenParsers }
 import jline.{ ConsoleReader, History }
 
 /* BEGIN PARSER */
-object Reader {
+object Reader extends RegexParsers with JavaTokenParsers {
 
   def read(programText: String): Either[String, ToyList] = {
-    import ToyParsers.{ toyProgram, parseAll, NoSuccess, Success }
     parseAll(toyProgram, programText) match {
       case Success(form, _) => Right(recognizeSpecialForms(form))
       case NoSuccess(msg, _) => Left(msg)
     }
   }
 
-  private[toylisp] object ToyParsers extends RegexParsers with JavaTokenParsers {
+  //in the tradition of Lisp, a program is a list of forms
+  lazy val toyProgram: Parser[ToyList] =
+    (((ws*) ~> toyForm <~ (ws*))*) ^^ { ToyList(_) }
 
-    //in the tradition of Lisp, a program is a list of forms
-    lazy val toyProgram: Parser[ToyList] =
-      (((ws*) ~> toyForm <~ (ws*))*) ^^ { ToyList(_) }
+  //we will handle whitepsace ourselves
+  override val skipWhitespace = false
 
-    //we will handle whitepsace ourselves
-    override val skipWhitespace = false
+  lazy val quoteStr: String = "'"
 
-    lazy val quoteStr: String = "'"
+  //handy string/regex parsers
+  lazy val lParen: Parser[String] = "("
+  lazy val rParen: Parser[String] = ")"
+  lazy val lBrack: Parser[String] = "["
+  lazy val rBrack: Parser[String] = "]"
+  lazy val quote: Parser[String] = quoteStr
+  lazy val ws: Parser[String] = """\s+""".r
 
-    //handy string/regex parsers
-    lazy val lParen: Parser[String] = "("
-    lazy val rParen: Parser[String] = ")"
-    lazy val lBrack: Parser[String] = "["
-    lazy val rBrack: Parser[String] = "]"
-    lazy val quote: Parser[String] = quoteStr
-    lazy val ws: Parser[String] = """\s+""".r
-
-    //"primitive types" parsers
-    lazy val toySymbol: Parser[ToySymbol] =
-      """[a-zA-Z_@~%!=#<>\+\*\?\^\&]+""".r ^^ { ToySymbol(_) }
-    lazy val toyChar: Parser[ToyChar] =
-      quote ~> "[^.]".r <~ quote ^^ { s => ToyChar(s charAt 0) }
-    lazy val toyNumber: Parser[ToyInt] = floatingPointNumber ^^ { str =>
-      ToyInt(str.toDouble)
-    }
-
-    //syntactic sugar parsers
-    lazy val toyString: Parser[ToyCall] = stringLiteral ^^ { str =>
-      {
-        val chars =
-          str.substring(1, str.length - 1).toList.map(quoteStr + _ + quoteStr)
-        val sExpr = "(" + chars.mkString(" ") + ")"
-        parse(toyCall, sExpr).get
-      }
-    }
-
-    //list types parser
-    lazy val toyCall: Parser[ToyCall] =
-      lParen ~> (((ws*) ~> toyForm <~ (ws*))*) <~ rParen ^^ { ToyCall(_) }
-    lazy val toyList: Parser[ToyList] =
-      lBrack ~> (((ws*) ~> toyForm <~ (ws*))*) <~ rBrack ^^ { ToyList(_) }
-
-    //"primitive types", list types, and sugar types together make all the forms
-    lazy val toyForm: Parser[ToyForm] =
-      toySymbol | toyNumber | toyChar | toyCall | toyList | toyString
+  //"primitive types" parsers
+  lazy val toySymbol: Parser[ToySymbol] =
+    """[a-zA-Z_@~%!=#<>\+\*\?\^\&]+""".r ^^ { ToySymbol(_) }
+  lazy val toyChar: Parser[ToyChar] =
+    quote ~> "[^.]".r <~ quote ^^ { s => ToyChar(s charAt 0) }
+  lazy val toyNumber: Parser[ToyInt] = floatingPointNumber ^^ { str =>
+    ToyInt(str.toDouble)
   }
+
+  //syntactic sugar parsers
+  lazy val toyString: Parser[ToyCall] = stringLiteral ^^ { str =>
+    {
+      val chars =
+        str.substring(1, str.length - 1).toList.map(quoteStr + _ + quoteStr)
+      val sExpr = "(" + chars.mkString(" ") + ")"
+      parse(toyCall, sExpr).get
+    }
+  }
+
+  //list types parser
+  lazy val toyCall: Parser[ToyCall] =
+    lParen ~> (((ws*) ~> toyForm <~ (ws*))*) <~ rParen ^^ { ToyCall(_) }
+  lazy val toyList: Parser[ToyList] =
+    lBrack ~> (((ws*) ~> toyForm <~ (ws*))*) <~ rBrack ^^ { ToyList(_) }
+
+  //"primitive types", list types, and sugar types together make all the forms
+  lazy val toyForm: Parser[ToyForm] =
+    toySymbol | toyNumber | toyChar | toyCall | toyList | toyString
 
   def isSymbol(form: ToyForm): Boolean = {
     form match {
@@ -105,17 +101,16 @@ case class ToyInt(dub: Double) extends ToyForm
 case class ToySymbol(str: String) extends ToyForm
 case class ToyCall(lst: List[ToyForm]) extends ToyForm
 case class ToyList(lst: List[ToyForm]) extends ToyForm
-
 /* END PARSER */
 
 /* BEGIN INTERPRETER */
 object Interpreter {
 
-  def interpret(form: ToyForm): ToyForm = {
+  def eval(form: ToyForm): ToyForm = {
     form match {
       case ToyDo(stmts) => stmts.foldLeft(
         emptyList.asInstanceOf[ToyForm]) { (_, form) =>
-          interpret(form)
+          eval(form)
         }
       case ToyLambda(_, _) => form
       case ToyChar(_) | ToyInt(_) | ToyList(_) => form
@@ -141,7 +136,7 @@ object Interpreter {
   private def lookupSymbol(symb: ToySymbol) = {
     val form = environment getOrElse (symb,
       throw UnboundSymbolError(symb.toString))
-    interpret(form)
+    eval(form)
   }
 
   private def handleLambda(lambda: ToyLambda, forms: List[ToyForm]) = {
@@ -149,9 +144,9 @@ object Interpreter {
       case ToyLambda(args, body) => {
         if (args.length == forms.length) {
           for (i <- (0 until args.length)) {
-            environment.update(args(i), interpret(forms(i)))
+            environment.update(args(i), eval(forms(i)))
           }
-          interpret(body)
+          eval(body)
         } else
           throw SyntaxError("tried to call a lambda with wrong number of args")
       }
@@ -164,72 +159,72 @@ object Interpreter {
         case tl: ToyLambda => handleLambda(tl, restForms)
         case ToySymbol("set!") => restForms match {
           case List(ToySymbol(v), form) => {
-            environment.update(ToySymbol(v), interpret(form))
+            environment.update(ToySymbol(v), eval(form))
             emptyList
           }
           case _ => throw SyntaxError("set needs a symbol and a form")
         }
-        case ToySymbol("list?") => (restForms map interpret) match {
+        case ToySymbol("list?") => (restForms map eval) match {
           case List(ToyList(_)) => one
           case _ => zero
         }
-        case ToySymbol("char?") => (restForms map interpret) match {
+        case ToySymbol("char?") => (restForms map eval) match {
           case List(ToyChar(_)) => one
           case _ => zero
         }
-        case ToySymbol("num?") => (restForms map interpret) match {
+        case ToySymbol("num?") => (restForms map eval) match {
           case List(ToyInt(_)) => one
           case _ => zero
         }
-        case ToySymbol("eq?") => (restForms map interpret) match {
+        case ToySymbol("eq?") => (restForms map eval) match {
           case List(ToyInt(a), ToyInt(b)) => if (a == b) one else zero
           case List(ToyChar(a), ToyChar(b)) => if (a == b) one else zero
           case List(ToyList(a), ToyList(b)) => if (a == b) one else zero
           case _ => zero
         }
-        case ToySymbol("char>num") => (restForms map interpret) match {
+        case ToySymbol("char>num") => (restForms map eval) match {
           case List(ToyChar(c)) => ToyInt(c.toInt)
           case _ => throw SyntaxError("char>num needs one char")
         }
-        case ToySymbol("num>char") => (restForms map interpret) match {
+        case ToySymbol("num>char") => (restForms map eval) match {
           case List(ToyInt(n)) => ToyChar(n.toChar)
           case _ => throw SyntaxError("num>char needs one number")
         }
-        case ToySymbol("+") => (restForms map interpret) match {
+        case ToySymbol("+") => (restForms map eval) match {
           case List(ToyInt(a), ToyInt(b)) => ToyInt(a + b)
           case _ => throw SyntaxError("plus needs two numbers")
         }
-        case ToySymbol("opp") => (restForms map interpret) match {
+        case ToySymbol("opp") => (restForms map eval) match {
           case List(ToyInt(a)) => ToyInt(-a)
           case _ => throw SyntaxError("opp needs one number")
         }
-        case ToySymbol("<=") => (restForms map interpret) match {
+        case ToySymbol("<=") => (restForms map eval) match {
           case List(ToyInt(a), ToyInt(b)) => if (a <= b) one else zero
           case _ => throw SyntaxError("plus needs two numbers")
         }
-        case ToySymbol("floor") => (restForms map interpret) match {
+        case ToySymbol("floor") => (restForms map eval) match {
           case List(ToyInt(a)) => ToyInt(java.lang.Math.floor(a))
           case _ => throw SyntaxError("floor requires one argument")
         }
-        case ToySymbol("cons") => (restForms map interpret) match {
-          case List(a, ToyList(q)) => ToyList(interpret(a) :: q)
+        case ToySymbol("cons") => (restForms map eval) match {
+          case List(a, ToyList(q)) => ToyList(eval(a) :: q)
           case _ => throw SyntaxError("cons needs a form and a list")
         }
-        case ToySymbol("head") => (restForms map interpret) match {
+        case ToySymbol("head") => (restForms map eval) match {
           case List(ToyList(h :: t)) => h
           case _ => throw SyntaxError("head needs a non-empty quoted list")
         }
-        case ToySymbol("tail") => (restForms map interpret) match {
+        case ToySymbol("tail") => (restForms map eval) match {
           case List(ToyList(h :: t)) => ToyList(t)
           case _ => throw SyntaxError("tail needs a non-empty quoted list")
         }
         case ToySymbol("if") => restForms match {
-          case List(cond, ift, iff) => interpret(if (falsy(interpret(cond))) ift
+          case List(cond, ift, iff) => eval(if (falsy(eval(cond))) ift
           else iff)
           case _ => throw SyntaxError("if requires three arguments")
         }
         case userFunc => {
-          interpret(userFunc) match {
+          eval(userFunc) match {
             case tl: ToyLambda => handleLambda(tl, restForms)
             case _ => throw SyntaxError("first element of a function call must" +
               " be the lambda keyword or result in a lambda")
@@ -296,7 +291,7 @@ object Main {
       Reader.read(programText) match {
         case Right(ToyList(forms)) => {
           for (form <- forms) {
-            val result = Interpreter interpret form
+            val result = Interpreter eval form
             if (quiet == false)
               println(simpleClass(result) + " = " + result)
           }
