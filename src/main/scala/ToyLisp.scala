@@ -124,10 +124,11 @@ object Interpreter {
             case _ => throw TypeError("opp needs one number")
           }
           case ToySymbol("set!") => restForms match {
-            case List(s: ToySymbol, form) => (EmptyList, env + (s -> form))
+            case List(s: ToySymbol, form) =>
+              (EmptyList, env + (s -> evale(form)))
             case _ => throw TypeError("set needs a symbol and a form")
           }
-  //       case tl: ToyLambda => handleLambda(tl, restForms)
+        case tl: ToyLambda => handleLambda(tl, restForms, env)
 
   //       case userFunc => {
   //         eval(userFunc) match {
@@ -142,19 +143,22 @@ object Interpreter {
       }
   }
 
-  // private def handleLambda(lambda: ToyLambda, forms: List[ToyForm]) = {
-  //   lambda match {
-  //     case ToyLambda(args, body) => {
-  //       if (args.length == forms.length) {
-  //         for (i <- (0 until args.length)) {
-  //           environment.update(args(i), eval(forms(i)))
-  //         }
-  //         eval(body)
-  //       } else
-  //         throw SyntaxError("tried to call a lambda with wrong number of args")
-  //     }
-  //   }
-  // }
+  private def handleLambda(lambda: ToyLambda,
+                           forms: List[ToyForm],
+                           env: Environment): (ToyForm, Environment) = {
+      lambda match {
+        case ToyLambda(args, body) => {
+          if (args.length == forms.length) {
+            val envWithParams = (0 until args.length).foldLeft (EmptyEnvironment) {
+              case (env, i) => env + (args(i) -> forms(i))
+            }
+            eval(body, envWithParams)
+          }
+          else
+            throw TypeError("tried to call a lambda with wrong number of args")
+        }
+      }
+  }
 
 }
 

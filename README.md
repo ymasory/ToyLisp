@@ -35,6 +35,9 @@ Language
 - There's just one namespace.
 - Scoping is lexical.
 
+# evaluation #
+Eager call-by-value.
+
 # deficiencies #
 - Recursion is not supported. Since there are no loops either, ToyLisp is not Turing-complete.
 
