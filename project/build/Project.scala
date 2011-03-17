@@ -1,6 +1,6 @@
 import sbt._
 
-class Project(info: ProjectInfo) extends DefaultProject(info) with ProguardProject with Exec {
+class Project(info: ProjectInfo) extends DefaultProject(info) with ProguardProject {
   
   //project name
   override val artifactID = "ToyLisp"
