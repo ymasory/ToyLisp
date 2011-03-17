@@ -16,7 +16,6 @@
 - Who is comfortable with basic regular expressions?
 - Who could sit down and right an interpreter?
 - Who could sit down and write a compiler?
-- Who uses sbt? Emacs? ENSIME? GitHub?
 
 # Overview of Lisp #
 ## Why Lisp? ##
