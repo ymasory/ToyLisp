@@ -65,10 +65,10 @@ The parser (lisp-speak: the `reader`) does 1-3. The evaluator (lisp-speak: the `
 - **Parser combinators** are slow, but they're the fastest to write. They're easily maintained since they look similar EBNF grammar. They are very high-level, producing idiomatic Scala objects. They are also compositional.
 
 ## Top-level types and methods ##
-- `Parser[X]` is an object that takes a `String` and returns an `X` if the parse is successful.
+- `Parser[X]` is the type of a class for `Strings` into  `Xs`.
 - Our parser (er, reader) will be a `Parser[ToyList]`.
 - `Parser.parseAll` parses **all** of its input or fails. Contrast with `Parser.parse`.
-- Beware of the cake pattern! You mix in `Parsers` and by doing so get access to `Parser` and its methods.
+- Beware of the cake pattern! You don't subclass `Parser`. You mix in `Parsers` and by doing so get access to `Parser` and its methods.
 - `RegexParsers` gives you implicit conversions from regexes to `Parser` objects.
 - `JavaTokenParsers` gives you `Parser` objects for various Java tokens.
 - Huge gotcha: you need to override `skipWhitespace` otherwise you will lack fine grained control over whitespace.
@@ -76,6 +76,10 @@ The parser (lisp-speak: the `reader`) does 1-3. The evaluator (lisp-speak: the `
 ## Combinators ##
 - A *combinator* is a function that takes two elements from some domain, and returns another element from that same domain.
 - A *parser combinator* therefore takes two parsers and gives you a new parser.
+- Sequential combinators: `comb1 ~ comb2`, `combIgnored ~> comb`, `comb <~ combIgnored`
+- Optional combinator: `op(comb)`
+- Repetition combinators: `comb *`, `comb +`
+- Alternative combinators: `|`
 
 ## Mapping parser outputs ##
 We need `ToyForm` objects as the output of our parsers!
