@@ -20,10 +20,10 @@ object Reader extends RegexParsers with JavaTokenParsers {
 
   //in the tradition of Lisp, a program is a list of forms
   lazy val toyProgram: Parser[ToyList] =
-    (((ws*) ~> toyForm <~ (ws*))*) ^^ { ToyList(_) }
+    (((whiteSpace*) ~> toyForm <~ (whiteSpace*))*) ^^ { ToyList(_) }
 
   //we will handle whitepsace ourselves
-  override val skipWhitespace = false
+  // override val skipWhitespace = false
 
   lazy val quoteStr: String = "'"
 
@@ -33,18 +33,20 @@ object Reader extends RegexParsers with JavaTokenParsers {
   lazy val lBrack: Parser[String] = "["
   lazy val rBrack: Parser[String] = "]"
   lazy val quote: Parser[String] = quoteStr
-  lazy val ws: Parser[String] = """\s+""".r
 
   //"primitive types" parsers
   lazy val toySymbol: Parser[ToySymbol] =
     """[a-zA-Z_@~%!=#<>\+\*\?\^\&]+""".r ^^ { ToySymbol(_) }
   lazy val toyChar: Parser[ToyChar] =
-    quote ~> "[^.]".r <~ quote ^^ { s => ToyChar(s charAt 0) }
+    quote ~> ".".r <~ quote ^^ { s => ToyChar(s.head) }
   lazy val toyNumber: Parser[ToyInt] = floatingPointNumber ^^ { str =>
     ToyInt(str.toDouble)
   }
 
-  //syntactic sugar parsers
+  /**
+   * ToyLisp has no string "type", just string ``syntax`` for lists of characters.
+   * So we will rewrite string literals into lists of characters and parse that.
+   */
   lazy val toyString: Parser[ToyCall] = stringLiteral ^^ { str =>
     {
       val chars =
@@ -56,9 +58,9 @@ object Reader extends RegexParsers with JavaTokenParsers {
 
   //list types parser
   lazy val toyCall: Parser[ToyCall] =
-    lParen ~> (((ws*) ~> toyForm <~ (ws*))*) <~ rParen ^^ { ToyCall(_) }
+    lParen ~> (((whiteSpace*) ~> toyForm <~ (whiteSpace*))*) <~ rParen ^^ { ToyCall(_) }
   lazy val toyList: Parser[ToyList] =
-    lBrack ~> (((ws*) ~> toyForm <~ (ws*))*) <~ rBrack ^^ { ToyList(_) }
+    lBrack ~> (((whiteSpace*) ~> toyForm <~ (whiteSpace*))*) <~ rBrack ^^ { ToyList(_) }
 
   //"primitive types", list types, and sugar types together make all the forms
   lazy val toyForm: Parser[ToyForm] =
