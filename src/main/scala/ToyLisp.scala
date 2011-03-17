@@ -11,8 +11,10 @@ import jline.{ ConsoleReader, History }
 /* BEGIN MAIN */
 object Main {
 
-  //Use JLine's ConsoleReader instead of Console.in, just so we can
-  // hit backspace in interactive mode, have command history, etc.
+  /**
+   * Use JLine's ConsoleReader instead of Console.in, just so we can
+   * hit backspace in interactive mode, have command history, etc.
+   */
   val in = {
     val consoleReader = new ConsoleReader(System.in,
       new OutputStreamWriter(System.out))
@@ -22,8 +24,12 @@ object Main {
     consoleReader
   }
 
+  /**
+   * Run the standard library, then either run the provided file,
+   * or go into interactive mode if no file is provided.
+   */
   def main(args: Array[String]) {
-    val stdlib = UrlReader resource2String "/stdlib.lis'"
+    val stdlib = ResourceReader resource2String "/stdlib.lis'"
     println("stdlib: " + stdlib)
     if (args.length > 0) runFile(args(0))
     else runInteractive()
@@ -44,6 +50,10 @@ object Main {
     }
   }
 
+  /**
+   * Interpret the programText, then if `quiet` is `false` prettily display
+   * the output.
+   */
   private def giveOutput(programText: String, quiet: Boolean = false) {
     try {
       Reader.read(programText) match {
@@ -61,11 +71,15 @@ object Main {
     }
   }
 
+  /** Convert a fully qualified class name into a bare class name. */
   private def simpleClass(arg: AnyRef): String =
     arg.getClass.toString.split("\\s+")(1).split("\\.").last
 
-  object UrlReader {
+  object ResourceReader {
 
+    /**
+     * Dump the contents of the resource with the provided name into a `String`.
+     */
     def resource2String(resource: String): String = {
       val url = getClass getResource resource
       val in = new BufferedReader(new InputStreamReader(url.openStream()))
