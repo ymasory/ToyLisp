@@ -1,9 +1,8 @@
 # Intro #
-## Stuff ##
+## Where to find stuff ##
 - Yuvi Masory
 - http://yuvimasory.com
 - ymasory@gmail.com
-
 - https://github.com/ymasory/ToyLisp (code)
 - https://github.com/ymasory/ToyLisp/README.md (language handout)
 - https://github.com/ymasory/ToyLisp/PHASE-outline.md (talk outline handout)
@@ -25,38 +24,22 @@
 - Lisp is easy to evaluate.
 - I'm not a Lisper.
 
-## What makes a Lisp? ##
-Adapting from [Paul Graham](http://www.paulgraham.com/icad.html):
-
-1. fully parenthesized prefix notation
-2. conditionals
-3. lambdas and first class functions
-4. recursion
-5. dynamic typing
-6. garbage collection
-7. programs as trees of expressions
-8. symbol type
-9. notation for code using trees of symbols and constants
-10. minimal distinction between read-time and run-time, including macros
-
-ToyLisp supports supports 1-3, 5-7.
-
 ## ToyLisp ##
 ### Available forms ###
-- Simple literals: "a string", 'c', 3
-- List: [1 2 3]
-- Function call: (+ 2 2)
-- Lambda: (lambda [x] (* x 2))
-- Assignment: (set! timestwo (lambda [x] (* x 2)))
+- Simple literals: `"a string"`, `'c'`, `3`
+- List: `[1 2 3]`
+- Function call: `(+ 2 2)`
+- Lambda: `(lambda [x] (* x 2))`
+- Assignment: `(set! timestwo (lambda [x] (* x 2)))`
 
 ### Our goal ###
 We want to interpret this program:
 
-(set! -
-      (lambda [x y]
-        (+ x (opp y))))
+    (set! -
+          (lambda [x y]
+            (+ x (opp y))))
 
-(- 10 15)
+    (- 10 15)
 
 
 # Overview of Interpretation #
