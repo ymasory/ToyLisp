@@ -28,6 +28,12 @@ class ReaderTests extends FunSuite {
     }
   }
 
+  test("toySymbol accepts -") {
+    expect(ToySymbol("-")) {
+      parseAll(toySymbol, "-").get
+    }
+  }
+
   test("toySymbol rejects brackets") {
     parseShouldFail(toySymbol, "]")
   }
@@ -139,7 +145,7 @@ class ReaderTests extends FunSuite {
     val expected = ToyList(List(
       ToyCall(List(
         ToySymbol("set!"),
-        ToySymbol("minus"),
+        ToySymbol("-"),
         ToyLambda(
           List(ToySymbol("x"), ToySymbol("y")),
           ToyCall(List(
@@ -148,7 +154,7 @@ class ReaderTests extends FunSuite {
             ToyCall(List(ToySymbol("opp"), ToySymbol("y")))))))),
       
       ToyCall(List(
-        ToySymbol("minus"),
+        ToySymbol("-"),
         ToyInt(10),
         ToyInt(15)))
     ))

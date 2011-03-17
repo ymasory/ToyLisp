@@ -28,7 +28,7 @@ object Reader extends RegexParsers with JavaTokenParsers {
 
   //parsers for "primitive types"
   lazy val toySymbol: Parser[ToySymbol] =
-    """[a-zA-Z_@~%!=#<>\+\*\?\^\&]+""".r ^^ { ToySymbol(_) }
+    """[a-zA-Z_@~%!=#<>\-\+\*\?\^\&]+""".r ^^ { ToySymbol(_) }
   lazy val toyChar: Parser[ToyChar] =
     quote ~> ".".r <~ quote ^^ { s => ToyChar(s.head) }
   lazy val toyInt: Parser[ToyInt] = wholeNumber ^^ { str =>

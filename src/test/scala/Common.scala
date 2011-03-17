@@ -3,10 +3,10 @@ package com.yuvimasory.toylisp
 object Common {
   val phaseProgram =
 """
-(set! minus
+(set! -
       (lambda [x y]
         (+ x (opp y))))
 
-(minus 10 15)
+(- 10 15)
 """
 }
