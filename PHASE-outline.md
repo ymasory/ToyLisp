@@ -91,7 +91,7 @@ The parser (lisp-speak: the reader) does 1-3. The evaluator (lisp-speak: the `ev
 - `log(parser)` prints the parsing
 
 ## Mapping parser outputs ##
-- We need `ToyForm` objects as the output of our parsers! That's what `^^` is for.
+- We need `ToyForm` objects as the output of our parsers! That's what `^^` is for. It also has a variant `^?` for partial functions.
 - Antipattern: manipulating the parsed string inside the transformation function.
 
 # Evaluation #
