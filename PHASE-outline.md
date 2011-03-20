@@ -77,7 +77,7 @@ The parser (lisp-speak: the reader) does 1-3. The evaluator (lisp-speak: the `ev
 - Our parser (er, reader) will be a `Parser[ToyList]`.
 - `Parsers.parseAll` parses **all** of its input or fails. Contrast with `Parsers.parse`.
 - But how do we get our very first `Parser`? We don't want to subclass `Parser`.
-- `RegexParsers` gives you implicit conversions from regexes to `Parser` objects.
+- `RegexParsers` gives you implicit conversions from regexes or `Strings` to `Parser` objects.
 - `JavaTokenParsers` gives you `Parser` objects for various Java tokens.
 - FYI: you need to override `skipWhitespace` otherwise you will lack fine grained control over whitespace.
 
