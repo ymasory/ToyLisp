@@ -84,11 +84,11 @@ The parser (lisp-speak: the reader) does 1-3. The evaluator (lisp-speak: the `ev
 ## Combinators ##
 - A *combinator* is a function that takes two elements from some domain, and returns another element from that same domain.
 - A *parser combinator* therefore takes two parsers and gives you a new parser.
-- Sequential combinators: `comb1 ~ comb2`, `combIgnored ~> comb`, `comb <~ combIgnored`, `~!` guarantees no backtracking
-- Optional combinator: `op(comb)`
-- Repetition combinators: `comb *`, `comb +`
+- Sequential combinators: `parser1 ~ parser2`, `parserIgnored ~> parser`, `parser <~ parserIgnored`, `~!` guarantees no backtracking
+- Optional combinator: `parser?`
+- Repetition combinators: `parser*`, `parser+`
 - Alternative combinators: `|`, `|||`
-- `log` prints the parsing
+- `log(parser)` prints the parsing
 
 ## Mapping parser outputs ##
 - We need `ToyForm` objects as the output of our parsers! That's what `^^` is for.
