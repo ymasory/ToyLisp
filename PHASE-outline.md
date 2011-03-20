@@ -14,7 +14,7 @@
 
 ## Audience background ##
 - Who is comfortable with basic regular expressions?
-- Who could sit down and right an interpreter?
+- Who could sit down and write an interpreter?
 - Who could sit down and write a compiler?
 
 # Overview of Lisp #
