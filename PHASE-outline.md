@@ -75,7 +75,7 @@ The parser (lisp-speak: the reader) does 1-3. The evaluator (lisp-speak: the `ev
 ## Top-level types and methods ##
 - `Parser[X]` is the type of a class for some input into  `Xs`. It's a function object so it has an `apply` method. It also has some combinators unique to it.
 - Our parser (er, reader) will be a `Parser[ToyList]`.
-- `Parsers.parseAll` parses **all** of its input or fails. Contrast with `Parser.parse`.
+- `Parsers.parseAll` parses **all** of its input or fails. Contrast with `Parsers.parse`.
 - But how do we get our very first `Parser`? We don't want to subclass `Parser`.
 - `RegexParsers` gives you implicit conversions from regexes to `Parser` objects.
 - `JavaTokenParsers` gives you `Parser` objects for various Java tokens.
