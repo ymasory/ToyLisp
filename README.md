@@ -1,16 +1,16 @@
-Toy Lisp interpreter in Scala
-=============================
-Build
------
+# Toy Lisp interpreter in Scala #
+
+[![Build Status](http://ci.yuvimasory.com/job/ToyLisp/badge/icon)](http://ci.yuvimasory.com/job/ToyLisp/)
+
+## Build ##
 Install [sbt](http://code.google.com/p/simple-build-tool/).
     cd ToyLisp
     sbt update
     sbt proguard
     java -jar target/scala_2.8.1/ToyLisp-*.min.jar
 
-Language
---------
-# syntax #
+## Language ##
+### syntax ###
 - `foo`    (evaluated symbol)
 - `(foo)`  (function call, n-ary)
 - `[foo]`  (list)
@@ -18,27 +18,27 @@ Language
 - `'c'`    (character)
 - `3`      (integer)
 
-# special forms #
+### special forms ###
 - `set!`   (assignment)
 - `lambda` (anonymous function)
 - `if`     (conditional -- empty list and zero are falsy)
 - `do`     (sequence of forms)
 
-# built-in function #
+### built-in function ###
 - `cons`, `head`, `tail`
 - `num>char`, `char>num`
 - `<=`, `+`, `opp`
 - `eq?`
 - `list?`, `char?`, `num?`
 
-# bindings #
+### bindings ###
 - There's just one namespace.
 - Scoping is lexical.
 
-# evaluation #
+### evaluation ###
 Eager call-by-value.
 
-# deficiencies #
+### deficiencies ###
 - Recursion is not supported. Since there are no loops either, ToyLisp is not Turing-complete.
 
 
