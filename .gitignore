@@ -1,4 +1,5 @@
 .toyhistory
+/.lib/
 *~
 target/
 lib_managed/
